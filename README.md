@@ -1,4 +1,4 @@
-This is a learning platform for employees of an organisation to upskill.
+This is a learning platform for employees of an organisation to upskill and track their progress.
 
 ## Getting Started
 
