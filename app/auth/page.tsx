@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import EmployeeSignUpForm from "@/components/employee/signup/page";
-import EmployeeLoginForm from "@/components/employee/login/page";
-import OrganizationSignUpForm from "@/components/organization/signup/page";
-import OrganizationLoginForm from "@/components/organization/login/page";
+import EmployeeSignUpForm from "@/components/employee/signup/SignupForm";
+import EmployeeLoginForm from "@/components/employee/login/LoginForm";
+import OrganizationSignUpForm from "@/components/organization/signup/SignupForm";
+import OrganizationLoginForm from "@/components/organization/login/LoginForm";
 
 export default function Auth() {
   const [activeTab, setActiveTab] = useState("signup");
