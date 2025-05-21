@@ -1,12 +1,29 @@
+"use client";
+
 import Link from "next/link";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function EmployeeSignUpForm() {
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const handleSignUp = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Will add api logic here
+    console.log("Email:", email);
+    console.log("Password:", password);
+    console.log("Terms Accepted:", termsAccepted);
+    router.push("/dashboard");
+  };
+
   return (
     <>
       <h1 className="text-2xl font-bold text-center mb-6">
         Create Your Account
       </h1>
-      <form className="space-y-4">
+      <form className="space-y-4" onSubmit={handleSignUp}>
         <div>
           <label
             htmlFor="email"
@@ -18,6 +35,7 @@ export default function EmployeeSignUpForm() {
             type="email"
             id="email"
             className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-purple-300 focus:border-purple-500 outline-none transition-all"
+            onChange={(e) => setEmail(e.target.value)}
             required
           />
         </div>
@@ -33,6 +51,7 @@ export default function EmployeeSignUpForm() {
             type="password"
             id="password"
             className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-purple-300 focus:border-purple-500 outline-none transition-all"
+            onChange={(e) => setPassword(e.target.value)}
             required
           />
         </div>
@@ -42,6 +61,11 @@ export default function EmployeeSignUpForm() {
             type="checkbox"
             id="label"
             className="mr-2 h-4 w-4 accent-purple-600"
+            onClick={(e) =>
+              setTermsAccepted((e.target as HTMLInputElement).checked)
+            }
+            onChange={(e) => setTermsAccepted(e.target.checked)}
+            required
           />
           <label htmlFor="label" className="text-sm text-gray-700">
             I agree to the{" "}
