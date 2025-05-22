@@ -23,8 +23,8 @@ export interface User {
   email?: string;
   firstname?: string;
   lastname?: string;
-  // now includes all the orgs this user belongs to, with their role
-  organisations?: OrganisationMembership[];
+  organisation?: OrganisationMembership;
+  hasCompletedOnboarding?: boolean;
 }
 
 interface AuthCtx {
@@ -47,8 +47,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           // 2) If logged in, also fetch their org memberships
           fetch("/api/orgs/my", { credentials: "include" })
             .then((r) => r.json())
-            .then((orgs: OrganisationMembership[]) =>
-              setUser({ ...u, organisations: orgs })
+            .then((org: OrganisationMembership) =>
+              setUser({ ...u, organisation: org })
             )
             .catch(() => setUser(u));
         } else {
