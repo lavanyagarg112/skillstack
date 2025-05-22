@@ -1,4 +1,4 @@
-name: Restrict PRs to Deployment Branch
+name: Restrict PRs to Main Branch
 
 on:
   pull_request:
