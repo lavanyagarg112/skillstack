@@ -1,10 +1,13 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { useAuth } from "@/context/AuthContext";
 
 export default function NavBar() {
-  const authenticated = false; // Replace with actual authentication logic
+  const { user } = useAuth();
 
-  if (!authenticated) {
+  if (!user || !user.isLoggedIn) {
     return (
       <header className="bg-purple-100 p-4 shadow-sm">
         <div className="container mx-auto flex items-center">
