@@ -1,5 +1,6 @@
 // context/AuthContext.tsx
 "use client";
+
 import {
   createContext,
   useContext,
@@ -8,13 +9,24 @@ import {
   ReactNode,
 } from "react";
 
-interface User {
+type OrgRole = "admin" | "member";
+
+export interface OrganisationMembership {
+  id: number;
+  organisationName: string;
+  role: OrgRole;
+}
+
+export interface User {
   isLoggedIn: boolean;
+  userId?: number;
   email?: string;
-  organisationName?: string;
   firstname?: string;
   lastname?: string;
+  // now includes all the orgs this user belongs to, with their role
+  organisations?: OrganisationMembership[];
 }
+
 interface AuthCtx {
   user: User;
   setUser: (u: User) => void;
@@ -27,9 +39,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User>({ isLoggedIn: false });
 
   useEffect(() => {
+    // 1) Fetch the “whoami”
     fetch("/api/me", { credentials: "include" })
       .then((r) => r.json())
-      .then(setUser)
+      .then((u: User) => {
+        if (u.isLoggedIn) {
+          // 2) If logged in, also fetch their org memberships
+          fetch("/api/orgs/my", { credentials: "include" })
+            .then((r) => r.json())
+            .then((orgs: OrganisationMembership[]) =>
+              setUser({ ...u, organisations: orgs })
+            )
+            .catch(() => setUser(u));
+        } else {
+          setUser(u);
+        }
+      })
       .catch(() => {});
   }, []);
 
