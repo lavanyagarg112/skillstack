@@ -24,7 +24,7 @@ export interface User {
   firstname?: string;
   lastname?: string;
   organisation?: OrganisationMembership;
-  hasCompletedOnboarding?: boolean;
+  hasCompletedOnboarding?: boolean | null;
 }
 
 interface AuthCtx {
@@ -42,19 +42,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // 1) Fetch the “whoami”
     fetch("/api/me", { credentials: "include" })
       .then((r) => r.json())
-      .then((u: User) => {
-        if (u.isLoggedIn) {
-          // 2) If logged in, also fetch their org memberships
-          fetch("/api/orgs/my", { credentials: "include" })
-            .then((r) => r.json())
-            .then((org: OrganisationMembership) =>
-              setUser({ ...u, organisation: org })
-            )
-            .catch(() => setUser(u));
-        } else {
-          setUser(u);
-        }
-      })
+      .then((u: User) => setUser(u))
       .catch(() => {});
   }, []);
 
