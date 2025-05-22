@@ -1,33 +1,8 @@
-"use client";
-
 import Image from "next/image";
 import Link from "next/link";
-import { useAuth } from "@/context/AuthContext";
 import LogoutButton from "./auth/logout/LogoutButton";
 
-export default function NavBar() {
-  const { user } = useAuth();
-
-  if (!user || !user.isLoggedIn) {
-    return (
-      <header className="bg-purple-100 p-4 shadow-sm">
-        <div className="container mx-auto flex items-center">
-          <Link href="/" className="flex items-center">
-            <Image
-              src="/logo.svg"
-              alt="SkillStack Logo"
-              width={28}
-              height={28}
-            />
-            <span className="ml-2 text-purple-800 font-semibold text-lg">
-              SKILLSTACK
-            </span>
-          </Link>
-        </div>
-      </header>
-    );
-  }
-
+export default function SideNav() {
   return (
     <aside className="w-64 h-screen bg-white border-r border-gray-200 flex flex-col justify-between">
       <div>
