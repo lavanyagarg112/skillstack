@@ -10,7 +10,11 @@ const nextConfig: NextConfig = {
     ];
   },
   images: {
-    domains: ["avatar.iran.liara.run"],
+    remotePatterns: [
+      {
+        hostname: "avatar.iran.liara.run",
+      },
+    ],
   },
 };
 
