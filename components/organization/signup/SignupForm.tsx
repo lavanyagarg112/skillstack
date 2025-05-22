@@ -1,10 +1,27 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+
 export default function OrganizationSignUpForm() {
+  const router = useRouter();
+  const [organisationName, setOrganisationName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const handleSignUp = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Will add api logic here
+    console.log("Organisation Name:", organisationName);
+    console.log("Email:", email);
+    console.log("Password:", password);
+    router.push(`/${organisationName}/dashboard`);
+  };
   return (
     <>
       <h1 className="text-2xl font-bold text-center mb-6">
         Register Organization
       </h1>
-      <form className="space-y-4">
+      <form className="space-y-4" onSubmit={handleSignUp}>
         <div>
           <label
             htmlFor="orgName"
@@ -16,6 +33,7 @@ export default function OrganizationSignUpForm() {
             type="text"
             id="orgName"
             className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-purple-300 focus:border-purple-500 outline-none transition-all"
+            onChange={(e) => setOrganisationName(e.target.value)}
             required
           />
         </div>
@@ -31,6 +49,7 @@ export default function OrganizationSignUpForm() {
             type="email"
             id="email"
             className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-purple-300 focus:border-purple-500 outline-none transition-all"
+            onChange={(e) => setEmail(e.target.value)}
             required
           />
         </div>
@@ -46,6 +65,7 @@ export default function OrganizationSignUpForm() {
             type="password"
             id="password"
             className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-purple-300 focus:border-purple-500 outline-none transition-all"
+            onChange={(e) => setPassword(e.target.value)}
             required
           />
         </div>
