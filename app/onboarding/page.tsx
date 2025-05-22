@@ -32,8 +32,16 @@ export default function OnboardingPage() {
           throw new Error(body.message || "Failed to create organization");
         }
       } else {
-        // TODO: employee join flow
-        // await fetch('/api/orgs/join', { ... })
+        const addemp = await fetch("/api/orgs/addemployee", {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ organisationName: orgName }),
+        });
+        if (!addemp.ok) {
+          const body = await addemp.json().catch(() => ({}));
+          throw new Error(body.message || "Failed to add employee");
+        }
       }
 
       // 2) Mark onboarding complete
@@ -87,47 +95,40 @@ export default function OnboardingPage() {
       </div>
 
       {/* Step 2: Admin form */}
-      {role === "admin" && (
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label
-              htmlFor="orgName"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Organization Name
-            </label>
-            <input
-              id="orgName"
-              type="text"
-              value={orgName}
-              onChange={(e) => setOrgName(e.target.value)}
-              required
-              className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-purple-300"
-            />
-          </div>
-
-          {error && <p className="text-red-600 text-sm">{error}</p>}
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 disabled:opacity-50 transition-colors"
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label
+            htmlFor="orgName"
+            className="block text-sm font-medium text-gray-700 mb-1"
           >
-            {loading ? "Creating…" : "Create & Continue"}
-          </button>
-        </form>
-      )}
-
-      {/* Step 2: Employee stub */}
-      {role === "employee" && (
-        <div className="text-gray-600">
-          {/* You can replace this with your “join org” form later */}
-          <p>
-            As an employee, you’ll be added to an existing organization. (Form
-            coming soon.)
-          </p>
+            Organization Name
+          </label>
+          <input
+            id="orgName"
+            type="text"
+            value={orgName}
+            onChange={(e) => setOrgName(e.target.value)}
+            required
+            className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-purple-300"
+          />
         </div>
-      )}
+
+        {error && <p className="text-red-600 text-sm">{error}</p>}
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 disabled:opacity-50 transition-colors"
+        >
+          {role === "admin"
+            ? loading
+              ? "Creating…"
+              : "Create & Continue"
+            : loading
+            ? "Joining…"
+            : "Join & Continue"}
+        </button>
+      </form>
     </div>
   );
 }

@@ -9,7 +9,7 @@ import {
   ReactNode,
 } from "react";
 
-type OrgRole = "admin" | "member";
+type OrgRole = "admin" | "employee";
 
 export interface OrganisationMembership {
   id: number;
