@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import AuthHeader from "@/components/AuthHeader";
+import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
 import { AuthProvider } from "@/context/AuthContext";
 
@@ -21,7 +21,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.className} bg-white`}>
         <AuthProvider>
-          <AuthHeader />
+          <NavBar />
           <main className="container mx-auto p-4">{children}</main>
           <Footer />
         </AuthProvider>

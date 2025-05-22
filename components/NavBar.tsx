@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 
-export default function AuthHeader() {
+export default function NavBar() {
   const authenticated = false; // Replace with actual authentication logic
 
   if (!authenticated) {
