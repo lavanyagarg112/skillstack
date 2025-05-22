@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
 import {
   HomeIcon,
   BookOpenIcon,
@@ -41,6 +42,7 @@ export default function SideNav() {
   const firstName = user.firstname || user.email;
   const lastName = user.lastname || user.email;
   const avatarUrl = `https://avatar.iran.liara.run/username?username=${firstName}+${lastName}&background=f4d9b2&color=FF9800`;
+  const [imgSrc, setImgSrc] = useState(avatarUrl);
 
   return (
     <aside className="w-64 h-screen bg-white border-r border-gray-200 flex flex-col justify-between">
@@ -95,11 +97,12 @@ export default function SideNav() {
 
       <div className="px-6 py-4 flex flex-col items-center space-y-3">
         <Image
-          src={avatarUrl}
+          src={imgSrc}
           alt="Your avatar"
           width={40}
           height={40}
           className="rounded-full"
+          onError={() => setImgSrc("/avatar-placeholder.jpg")}
         />
         <LogoutButton />
       </div>
