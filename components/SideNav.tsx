@@ -8,6 +8,8 @@ import {
   BookOpenIcon,
   ChartBarIcon,
   UsersIcon,
+  MapIcon,
+  ClockIcon,
   CogIcon,
 } from "@heroicons/react/24/outline";
 import LogoutButton from "./auth/logout/LogoutButton";
@@ -18,6 +20,7 @@ const menuSections = [
     heading: "General",
     items: [
       { label: "Dashboard", href: "/dashboard", icon: HomeIcon },
+      { label: "My Roadmap", href: "/roadmap", icon: MapIcon },
       { label: "Courses", href: "/courses", icon: BookOpenIcon },
       { label: "Reports", href: "/reports", icon: ChartBarIcon },
     ],
@@ -25,7 +28,7 @@ const menuSections = [
   {
     heading: "Management",
     items: [
-      { label: "Users", href: "/users", icon: UsersIcon },
+      { label: "History", href: "/history", icon: ClockIcon },
       { label: "Organisations", href: "/organisations", icon: UsersIcon },
       { label: "Settings", href: "/settings", icon: CogIcon },
     ],
