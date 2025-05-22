@@ -1,12 +1,27 @@
+"use client";
+
 import Link from "next/link";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function OrganizationLoginForm() {
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Will add api logic here
+    console.log("Email:", email);
+    console.log("Password:", password);
+    const organisationName = "exampleOrg"; // This should be replaced with actual logic to get the organisation name
+    router.push(`/${organisationName}/dashboard`);
+  };
   return (
     <>
       <h1 className="text-2xl font-bold text-center mb-6">
         Organization Login
       </h1>
-      <form className="space-y-4">
+      <form className="space-y-4" onSubmit={handleLogin}>
         <div>
           <label
             htmlFor="email"
@@ -18,6 +33,7 @@ export default function OrganizationLoginForm() {
             type="email"
             id="email"
             className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-purple-300 focus:border-purple-500 outline-none transition-all"
+            onChange={(e) => setEmail(e.target.value)}
             required
           />
         </div>
@@ -33,6 +49,7 @@ export default function OrganizationLoginForm() {
             type="password"
             id="password"
             className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-purple-300 focus:border-purple-500 outline-none transition-all"
+            onChange={(e) => setPassword(e.target.value)}
             required
           />
         </div>
