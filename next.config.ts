@@ -9,6 +9,9 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  images: {
+    domains: ["avatar.iran.liara.run"],
+  },
 };
 
 export default nextConfig;

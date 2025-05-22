@@ -1,8 +1,44 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import {
+  HomeIcon,
+  BookOpenIcon,
+  ChartBarIcon,
+  UsersIcon,
+  CogIcon,
+} from "@heroicons/react/24/outline";
 import LogoutButton from "./auth/logout/LogoutButton";
+import { useAuth } from "@/context/AuthContext";
+
+const menuSections = [
+  {
+    heading: "General",
+    items: [
+      { label: "Dashboard", href: "/dashboard", icon: HomeIcon },
+      { label: "Courses", href: "/courses", icon: BookOpenIcon },
+      { label: "Reports", href: "/reports", icon: ChartBarIcon },
+    ],
+  },
+  {
+    heading: "Management",
+    items: [
+      { label: "Users", href: "/users", icon: UsersIcon },
+      { label: "Organisations", href: "/organisations", icon: UsersIcon },
+      { label: "Settings", href: "/settings", icon: CogIcon },
+    ],
+  },
+];
 
 export default function SideNav() {
+  const path = usePathname();
+  const { user } = useAuth();
+  const firstName = user.firstname || user.email;
+  const lastName = user.lastname || user.email;
+  const avatarUrl = `https://avatar.iran.liara.run/username?username=${firstName}+${lastName}&background=f4d9b2&color=FF9800`;
+
   return (
     <aside className="w-64 h-screen bg-white border-r border-gray-200 flex flex-col justify-between">
       <div>
@@ -16,44 +52,47 @@ export default function SideNav() {
           </span>
         </Link>
 
-        {/* Menu */}
-        <nav className="mt-8 px-6 space-y-4">
-          <Link
-            href="/dashboard"
-            className="block text-gray-700 hover:text-purple-600"
-          >
-            Dashboard
-          </Link>
-          <Link
-            href="/courses"
-            className="block text-gray-700 hover:text-purple-600"
-          >
-            Courses
-          </Link>
-          <Link
-            href="/courses"
-            className="block text-gray-700 hover:text-purple-600"
-          >
-            Reports
-          </Link>
-          <Link
-            href="/organisations"
-            className="block text-gray-700 hover:text-purple-600"
-          >
-            Organisations
-          </Link>
-          <Link
-            href="/settings"
-            className="block text-gray-700 hover:text-purple-600"
-          >
-            Settings
-          </Link>
+        <nav className="mt-6 px-4 space-y-6">
+          {menuSections.map((section) => (
+            <div key={section.heading}>
+              <p className="text-xs uppercase text-gray-400 tracking-wide px-2 mb-2">
+                {section.heading}
+              </p>
+              <ul className="space-y-1">
+                {section.items.map(({ label, href, icon: Icon }) => {
+                  const isActive = path === href;
+                  return (
+                    <li key={href}>
+                      <Link
+                        href={href}
+                        className={`flex items-center px-2 py-2 rounded-md transition-colors
+                          ${
+                            isActive
+                              ? "bg-purple-100 text-purple-700"
+                              : "text-gray-700 hover:bg-gray-100 hover:text-purple-600"
+                          }`}
+                      >
+                        <Icon
+                          className={`h-5 w-5 flex-shrink-0 ${
+                            isActive ? "text-purple-600" : "text-gray-400"
+                          }`}
+                        />
+                        <span className="ml-3 text-sm font-medium">
+                          {label}
+                        </span>
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          ))}
         </nav>
       </div>
 
       <div className="px-6 py-4 flex flex-col items-center space-y-3">
         <Image
-          src="/logo.svg"
+          src={avatarUrl}
           alt="Your avatar"
           width={40}
           height={40}

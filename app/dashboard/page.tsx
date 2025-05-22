@@ -10,7 +10,7 @@ export default async function DashboardPage() {
   return (
     <div>
       <h1>Welcome, {user.firstname || user.email}</h1>
-      <p>Organisation: {user.organisationName}</p>
+      <p>Enroll in an organisation to get started</p>
     </div>
   );
 }
