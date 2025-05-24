@@ -38,7 +38,7 @@ export default function SignupForm() {
         (r) => r.json()
       );
       setUser(user);
-      router.push("/dashboard");
+      router.push("/onboarding");
     } catch (err: any) {
       setError(err.message);
       setLoading(false);
