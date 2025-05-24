@@ -8,6 +8,10 @@ export default function OnboardingPage() {
   const router = useRouter();
   const { user, setUser } = useAuth();
 
+  if (!user || !user.isLoggedIn) {
+    return null;
+  }
+
   const [role, setRole] = useState<"admin" | "employee">("employee");
   const [orgName, setOrgName] = useState("");
   const [orgId, setOrgId] = useState("");

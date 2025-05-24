@@ -3,7 +3,7 @@ import OrgSettings from "@/components/organisation/settings/OrgSettings";
 
 export default async function SettingsPage() {
   const user = await getAuthUser();
-  if (!user) {
+  if (!user || !user.hasCompletedOnboarding) {
     return null;
   }
   const organisation = user.organisation;
