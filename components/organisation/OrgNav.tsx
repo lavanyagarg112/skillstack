@@ -26,7 +26,7 @@ const menuSections = [
   {
     heading: "Management",
     items: [
-      { label: "My Organisations", href: "/organisations", icon: UsersIcon },
+      { label: "My Organisation", href: "/organisation", icon: UsersIcon },
       { label: "Users", href: "/users", icon: UsersIcon },
       { label: "Settings", href: "/settings", icon: CogIcon },
     ],

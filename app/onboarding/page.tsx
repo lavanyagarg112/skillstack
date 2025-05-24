@@ -10,6 +10,7 @@ export default function OnboardingPage() {
 
   const [role, setRole] = useState<"admin" | "employee">("employee");
   const [orgName, setOrgName] = useState("");
+  const [orgId, setOrgId] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -36,7 +37,7 @@ export default function OnboardingPage() {
           method: "POST",
           credentials: "include",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ organisationName: orgName }),
+          body: JSON.stringify({ organisationId: orgId }),
         });
         if (!addemp.ok) {
           const body = await addemp.json().catch(() => ({}));
@@ -54,7 +55,7 @@ export default function OnboardingPage() {
         credentials: "include",
       }).then((r) => r.json());
       setUser(updatedUser);
-      router.push(`/${orgName}/dashboard`);
+      router.push(`/dashboard`);
     } catch (err: any) {
       setError(err.message);
       setLoading(false);
@@ -94,41 +95,66 @@ export default function OnboardingPage() {
         </button>
       </div>
 
-      {/* Step 2: Admin form */}
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label
-            htmlFor="orgName"
-            className="block text-sm font-medium text-gray-700 mb-1"
+      {role === "admin" && (
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label
+              htmlFor="orgName"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Organization Name
+            </label>
+            <input
+              id="orgName"
+              type="text"
+              value={orgName}
+              onChange={(e) => setOrgName(e.target.value)}
+              required
+              className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-purple-300"
+            />
+          </div>
+
+          {error && <p className="text-red-600 text-sm">{error}</p>}
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 disabled:opacity-50 transition-colors"
           >
-            Organization Name
-          </label>
-          <input
-            id="orgName"
-            type="text"
-            value={orgName}
-            onChange={(e) => setOrgName(e.target.value)}
-            required
-            className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-purple-300"
-          />
-        </div>
+            {loading ? "Creating…" : "Create & Continue"}
+          </button>
+        </form>
+      )}
+      {role === "employee" && (
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label
+              htmlFor="orgName"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Organization Invite Code
+            </label>
+            <input
+              id="orgName"
+              type="text"
+              value={orgId}
+              onChange={(e) => setOrgId(e.target.value)}
+              required
+              className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-purple-300"
+            />
+          </div>
 
-        {error && <p className="text-red-600 text-sm">{error}</p>}
+          {error && <p className="text-red-600 text-sm">{error}</p>}
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 disabled:opacity-50 transition-colors"
-        >
-          {role === "admin"
-            ? loading
-              ? "Creating…"
-              : "Create & Continue"
-            : loading
-            ? "Joining…"
-            : "Join & Continue"}
-        </button>
-      </form>
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 disabled:opacity-50 transition-colors"
+          >
+            {loading ? "Joining..." : "Join & Continue"}
+          </button>
+        </form>
+      )}
     </div>
   );
 }
