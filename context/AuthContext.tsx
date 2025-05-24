@@ -13,7 +13,7 @@ type OrgRole = "admin" | "employee";
 
 export interface OrganisationMembership {
   id: number;
-  organisationName: string;
+  organisationname: string;
   role: OrgRole;
 }
 
