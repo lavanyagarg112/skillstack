@@ -1,7 +1,15 @@
 "use client";
 import { useState, useEffect } from "react";
 
+interface OrganisationData {
+  organisation_name: string;
+  description: string;
+  ai_enabled: boolean;
+  id: string;
+}
+
 export default function OrgSettings() {
+  const [initialData, setInitialData] = useState<OrganisationData | null>(null);
   const [organisationId, setOrganisationId] = useState("");
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -10,6 +18,7 @@ export default function OrgSettings() {
   const [isSaving, setIsSaving] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadSettings() {
@@ -19,13 +28,16 @@ export default function OrgSettings() {
         });
         if (!res.ok) throw new Error("Network response was not ok");
         const data = (await res.json()).organisation;
+        setInitialData(data);
         setName(data.organisation_name);
         setDescription(data.description);
         setAiEnabled(data.ai_enabled);
         setOrganisationId(data.id);
         setError(null);
+        setMessage(null);
       } catch (err: any) {
         setError(err.message || "Failed to load settings");
+        setMessage(null);
       } finally {
         setLoading(false);
       }
@@ -35,6 +47,17 @@ export default function OrgSettings() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setMessage(null);
+    setError(null);
+    if (
+      initialData &&
+      initialData.organisation_name === name &&
+      initialData.description === description &&
+      initialData.ai_enabled === aiEnabled
+    ) {
+      setMessage("No changes made");
+      return;
+    }
     setIsSaving(true);
     try {
       const res = await fetch("/api/orgs/settings", {
@@ -53,8 +76,10 @@ export default function OrgSettings() {
       setDescription(description);
       setAiEnabled(aiEnabled);
       setError(null);
+      setMessage("Settings saved successfully");
     } catch (err: any) {
       setError(err.message || "Failed to save settings");
+      setMessage(null);
       console.error("Error saving organisation settings:", err);
     } finally {
       setIsSaving(false);
@@ -141,6 +166,11 @@ export default function OrgSettings() {
 
           {error && (
             <div className="text-red-600 text-sm mb-4 text-center">{error}</div>
+          )}
+          {message && (
+            <div className="text-green-600 text-sm mb-4 text-center">
+              {message}
+            </div>
           )}
 
           {/* Save / Cancel */}
