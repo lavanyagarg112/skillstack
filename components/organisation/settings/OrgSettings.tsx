@@ -1,12 +1,34 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-export default function OrgSettings({ initialData }: { initialData: any }) {
-  const [name, setName] = useState(initialData.organisation_name);
-  const [description, setDescription] = useState(initialData.description);
-  const [aiEnabled, setAiEnabled] = useState(initialData.ai_enabled);
+export default function OrgSettings() {
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [aiEnabled, setAiEnabled] = useState(false);
   const [transferEmail, setTransferEmail] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function loadSettings() {
+      try {
+        const res = await fetch("/api/orgs/settings", {
+          credentials: "include",
+        });
+        if (!res.ok) throw new Error("Network response was not ok");
+        const data = (await res.json()).organisation;
+        setName(data.organisation_name);
+        setDescription(data.description);
+        setAiEnabled(data.ai_enabled);
+      } catch (err: any) {
+        setError(err.message || "Failed to load settings");
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadSettings();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

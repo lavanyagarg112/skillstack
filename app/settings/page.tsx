@@ -1,5 +1,5 @@
 import { getAuthUser } from "@/lib/auth";
-import SettingsComponent from "@/components/organisation/settings/SettingsComponent";
+import OrgSettings from "@/components/organisation/settings/OrgSettings";
 
 export default async function SettingsPage() {
   const user = await getAuthUser();
@@ -14,7 +14,7 @@ export default async function SettingsPage() {
   if (isAdmin) {
     return (
       <div>
-        <SettingsComponent />
+        <OrgSettings />
       </div>
     );
   }
