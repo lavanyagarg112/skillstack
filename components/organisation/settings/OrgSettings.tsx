@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 
 export default function OrgSettings() {
+  const [organisationId, setOrganisationId] = useState("");
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [aiEnabled, setAiEnabled] = useState(false);
@@ -21,6 +22,8 @@ export default function OrgSettings() {
         setName(data.organisation_name);
         setDescription(data.description);
         setAiEnabled(data.ai_enabled);
+        setOrganisationId(data.id);
+        setError(null);
       } catch (err: any) {
         setError(err.message || "Failed to load settings");
       } finally {
@@ -34,10 +37,25 @@ export default function OrgSettings() {
     e.preventDefault();
     setIsSaving(true);
     try {
-      // Call API to update organisation settings
-      // show success toast
-    } catch (err) {
-      // show error toast
+      const res = await fetch("/api/orgs/settings", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          organisation_id: organisationId,
+          organisation_name: name,
+          description,
+          ai_enabled: aiEnabled,
+        }),
+      });
+      if (!res.ok) throw new Error("Failed to save settings");
+      setName(name);
+      setDescription(description);
+      setAiEnabled(aiEnabled);
+      setError(null);
+    } catch (err: any) {
+      setError(err.message || "Failed to save settings");
+      console.error("Error saving organisation settings:", err);
     } finally {
       setIsSaving(false);
     }
@@ -121,6 +139,10 @@ export default function OrgSettings() {
             </div>
           </div>
 
+          {error && (
+            <div className="text-red-600 text-sm mb-4 text-center">{error}</div>
+          )}
+
           {/* Save / Cancel */}
           <div className="flex justify-end space-x-3 pt-6 border-t">
             <button
@@ -129,7 +151,6 @@ export default function OrgSettings() {
                 setName(name);
                 setDescription(description);
                 setAiEnabled(aiEnabled);
-                setTransferEmail(transferEmail);
               }}
               disabled={isSaving}
               className="rounded border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-200"
