@@ -4,13 +4,14 @@ import { getAuthUser } from "@/lib/auth";
 export default async function DashboardPage() {
   const user = await getAuthUser();
   if (!user) {
-    redirect("/auth");
+    return null;
   }
 
   return (
     <div>
       <h1>Welcome, {user.firstname || user.email}</h1>
-      <p>Enroll in an organisation to get started</p>
+      <p>Organisation: {user.organisation?.organisationname}</p>
+      <p>Role: {user.organisation.role}</p>
     </div>
   );
 }

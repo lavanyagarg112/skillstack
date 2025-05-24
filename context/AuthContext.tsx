@@ -9,7 +9,7 @@ import {
   ReactNode,
 } from "react";
 
-type OrgRole = "admin" | "member";
+type OrgRole = "admin" | "employee";
 
 export interface OrganisationMembership {
   id: number;
@@ -23,8 +23,8 @@ export interface User {
   email?: string;
   firstname?: string;
   lastname?: string;
-  // now includes all the orgs this user belongs to, with their role
-  organisations?: OrganisationMembership[];
+  organisation?: OrganisationMembership;
+  hasCompletedOnboarding?: boolean | null;
 }
 
 interface AuthCtx {
@@ -42,19 +42,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // 1) Fetch the “whoami”
     fetch("/api/me", { credentials: "include" })
       .then((r) => r.json())
-      .then((u: User) => {
-        if (u.isLoggedIn) {
-          // 2) If logged in, also fetch their org memberships
-          fetch("/api/orgs/my", { credentials: "include" })
-            .then((r) => r.json())
-            .then((orgs: OrganisationMembership[]) =>
-              setUser({ ...u, organisations: orgs })
-            )
-            .catch(() => setUser(u));
-        } else {
-          setUser(u);
-        }
-      })
+      .then((u: User) => setUser(u))
       .catch(() => {});
   }, []);
 
