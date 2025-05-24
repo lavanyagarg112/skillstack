@@ -1,34 +1,23 @@
+// app/courses/page.tsx
+import CourseList from "@/components/organisation/courses/CourseList";
+import { Course } from "@/components/organisation/courses/CourseCard";
 import { getAuthUser } from "@/lib/auth";
 
-export default async function SettingsPage() {
+export default async function CoursesPage() {
   const user = await getAuthUser();
-  if (!user) {
+
+  if (!user || !user.hasCompletedOnboarding) {
     return null;
   }
-  const organisation = user.organisation;
-  const role = organisation.role;
-  const isAdmin = role === "admin";
-  const isMember = role === "employee";
 
-  if (isAdmin) {
-    return (
-      <div>
-        <h1>Organisation Courses</h1>
-      </div>
-    );
-  }
+  const isAdmin = user?.organisation?.role === "admin";
 
-  if (isMember) {
-    return (
-      <div>
-        <h1>Member Settings</h1>
-      </div>
-    );
-  }
+  // 2) Dummy data
+  const courses: Course[] = [
+    { id: 1, name: "Intro to TypeScript", description: "Learn TS basics" },
+    { id: 2, name: "Advanced React", description: "Hooks, Suspense, SSR" },
+  ];
 
-  return (
-    <div>
-      <h1>Page should not reach here</h1>
-    </div>
-  );
+  // 3) Render the client component that will show/hide admin buttons
+  return <CourseList courses={courses} isAdmin={isAdmin} />;
 }
