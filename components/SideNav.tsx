@@ -45,7 +45,7 @@ export default function SideNav() {
   const [imgSrc, setImgSrc] = useState(avatarUrl);
 
   return (
-    <aside className="w-64 h-screen bg-white border-r border-gray-200 flex flex-col justify-between">
+    <aside className="sticky top-0 w-64 h-screen bg-white border-r border-gray-200 flex flex-col justify-between overflow-y-auto">
       <div>
         <Link
           href="/"
