@@ -22,11 +22,28 @@ export default function CourseForm({ mode, course }: Props) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const payload = { name, description };
+    const payload = { courseName: name, description };
 
     if (mode === "create") {
-      // add api call to create a new course
-      router.push("/courses");
+      try {
+        const res = await fetch("/api/courses", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        });
+        if (!res.ok) {
+          throw new Error("Failed to create course");
+        }
+        const data = await res.json();
+        console.log("Course created:", data);
+        router.push("/courses");
+      } catch (error) {
+        console.error("Error creating course:", error);
+        alert("Failed to create course. Please try again.");
+        return;
+      }
     } else {
       // add api call to edit course
       router.push(`/courses/${course?.id}`);
