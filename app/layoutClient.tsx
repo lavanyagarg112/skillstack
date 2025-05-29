@@ -28,11 +28,11 @@ export default function LayoutClient({
     }
   }, [shouldRedirectToOnboarding, router]);
 
-  useEffect(() => {
-    if (!isLoggedIn) {
-      router.push("/auth");
-    }
-  }, [isLoggedIn, router]);
+  // useEffect(() => {
+  //   if (!isLoggedIn) {
+  //     router.push("/auth");
+  //   }
+  // }, [isLoggedIn, router]);
 
   return (
     <div>
