@@ -14,7 +14,7 @@ export default function OnboardingPage() {
 
   const [role, setRole] = useState<"admin" | "employee">("employee");
   const [orgName, setOrgName] = useState("");
-  const [orgId, setOrgId] = useState("");
+  const [orgInvite, setOrgInvite] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -41,7 +41,10 @@ export default function OnboardingPage() {
           method: "POST",
           credentials: "include",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ organisationId: orgId }),
+          body: JSON.stringify({
+            organisationName: orgName,
+            inviteCode: orgInvite,
+          }),
         });
         if (!addemp.ok) {
           const body = await addemp.json().catch(() => ({}));
@@ -49,7 +52,6 @@ export default function OnboardingPage() {
         }
       }
 
-      // 2) Mark onboarding complete
       const done = await fetch("/api/complete-onboarding", {
         method: "POST",
         credentials: "include",
@@ -136,13 +138,29 @@ export default function OnboardingPage() {
               htmlFor="orgName"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
+              Organization Name
+            </label>
+            <input
+              id="orgName"
+              type="text"
+              value={orgName}
+              onChange={(e) => setOrgName(e.target.value)}
+              required
+              className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-purple-300"
+            />
+          </div>
+          <div>
+            <label
+              htmlFor="orgName"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               Organization Invite Code
             </label>
             <input
               id="orgName"
               type="text"
-              value={orgId}
-              onChange={(e) => setOrgId(e.target.value)}
+              value={orgInvite}
+              onChange={(e) => setOrgInvite(e.target.value)}
               required
               className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-purple-300"
             />

@@ -21,6 +21,9 @@ export default function UsersList() {
   );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [inviteCode, setInviteCode] = useState<string | null>(null);
+  const [inviteLoading, setInviteLoading] = useState(true);
+  const [inviteError, setInviteError] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchUsers() {
@@ -40,12 +43,47 @@ export default function UsersList() {
     fetchUsers();
   }, []);
 
+  useEffect(() => {
+    async function loadInvite() {
+      try {
+        const res = await fetch("/api/orgs/get-curent-invitecode", {
+          credentials: "include",
+        });
+        if (!res.ok) throw new Error("Failed to load invite code");
+        const { inviteCode } = await res.json();
+        setInviteCode(inviteCode);
+      } catch (e: any) {
+        setInviteError(e.message);
+      } finally {
+        setInviteLoading(false);
+      }
+    }
+    loadInvite();
+  }, []);
+
   if (loading) {
     return <p className="text-center py-6">Loading users…</p>;
   }
   if (error) {
     return <p className="text-center py-6 text-red-500">Error: {error}</p>;
   }
+
+  const handleGenerate = async () => {
+    setInviteLoading(true);
+    try {
+      const res = await fetch("/api/orgs/generate-invite-code", {
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error("Failed to generate invite code");
+      const { inviteCode } = await res.json();
+      setInviteCode(inviteCode);
+      setInviteError(null);
+    } catch (e: any) {
+      setInviteError(e.message);
+    } finally {
+      setInviteLoading(false);
+    }
+  };
 
   const handleRemoveUser = async (userId: number) => {
     if (
@@ -76,6 +114,35 @@ export default function UsersList() {
   return (
     <div className="max-w-4xl mx-auto bg-white p-6 rounded shadow">
       <h1 className="text-2xl font-bold mb-4">Users in Your Organisation</h1>
+
+      <div className="mb-6 p-4 bg-blue-50 rounded">
+        <h2 className="text-lg font-semibold mb-2">Invitation Code</h2>
+        {inviteLoading ? (
+          <p>Loading…</p>
+        ) : inviteError ? (
+          <p className="text-red-500">{inviteError}</p>
+        ) : (
+          <div className="flex items-center space-x-2">
+            <code className="font-mono bg-white px-2 py-1 rounded">
+              {inviteCode || "No invite code generated yet"}
+            </code>
+            <button
+              onClick={handleGenerate}
+              className="px-3 py-1 bg-purple-600 text-white rounded text-sm"
+            >
+              Generate New
+            </button>
+            <button
+              onClick={() =>
+                inviteCode && navigator.clipboard.writeText(inviteCode)
+              }
+              className="px-3 py-1 bg-gray-200 rounded text-sm"
+            >
+              Copy
+            </button>
+          </div>
+        )}
+      </div>
 
       {sortedUsers.length === 0 ? (
         <p className="text-gray-600">No users found.</p>
