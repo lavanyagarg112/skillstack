@@ -2,7 +2,7 @@ import { getAuthUser } from "@/lib/auth";
 
 export default async function DashboardPage() {
   const user = await getAuthUser();
-  if (!user) {
+  if (!user || !user.hasCompletedOnboarding) {
     return null;
   }
 
