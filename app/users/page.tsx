@@ -13,6 +13,5 @@ export default async function UsersPage() {
     return null;
   }
 
-  const organisationId = user.organisation.id;
-  return <UsersList organisationId={organisationId} />;
+  return <UsersList />;
 }
