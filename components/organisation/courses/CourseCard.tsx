@@ -17,7 +17,7 @@ export default function CourseCard({ course, isAdmin }: Props) {
   return (
     <div className="bg-white border rounded-lg p-6 shadow-sm hover:shadow-md transition">
       <h2 className="text-xl font-semibold text-purple-600">{course.name}</h2>
-      <p className="mt-2 text-gray-700">{course.description}</p>
+      <p className="mt-2 text-gray-700">{course.description?.slice(0, 100)}</p>
 
       <div className="mt-4 flex items-center space-x-4">
         <Link href={`/courses/${course.id}`}>

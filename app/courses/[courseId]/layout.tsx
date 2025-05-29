@@ -37,6 +37,12 @@ export default async function CourseLayout({
           >
             Edit Course Details
           </Link>
+          <Link
+            href={`/courses/${response.id}/modules/new`}
+            className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded"
+          >
+            Add module
+          </Link>
         </div>
       )}
 
