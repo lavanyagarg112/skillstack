@@ -3,6 +3,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export interface Course {
   id: number;
@@ -12,14 +13,45 @@ export interface Course {
 
 interface Props {
   mode: "create" | "edit";
-  course?: Course;
+  courseId?: string;
 }
 
-export default function CourseForm({ mode, course }: Props) {
-  const [name, setName] = useState(course?.name ?? "");
-  const [description, setDescription] = useState(course?.description ?? "");
+export default function CourseForm({ mode, courseId }: Props) {
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
   const [deleteMode, setDeleteMode] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    async function fetchCourse() {
+      const response = await fetch(
+        `http://localhost:4000/api/courses/get-course`,
+        {
+          credentials: "include",
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ courseId }),
+        }
+      ).then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to fetch course");
+        }
+        return res.json();
+      });
+      setName(response.name);
+      setDescription(response.description || "");
+    }
+    if (mode === "edit" && courseId) {
+      // Fetch course details if in edit mode
+      fetchCourse().catch((error) => {
+        console.error("Error fetching course:", error);
+        alert("Failed to load course data. Please try again.");
+        router.push("/courses");
+      });
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,6 +64,7 @@ export default function CourseForm({ mode, course }: Props) {
           headers: {
             "Content-Type": "application/json",
           },
+          credentials: "include",
           body: JSON.stringify(payload),
         });
         if (!res.ok) {
@@ -46,7 +79,14 @@ export default function CourseForm({ mode, course }: Props) {
         return;
       }
     } else if (deleteMode) {
-      if (!course?.id) {
+      const confirmed = window.confirm(
+        "Are you sure you want to delete this course? This action cannot be undone."
+      );
+      if (!confirmed) {
+        setDeleteMode(false);
+        return;
+      }
+      if (!courseId) {
         alert("Please provide a course name to delete.");
         return;
       }
@@ -56,7 +96,8 @@ export default function CourseForm({ mode, course }: Props) {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ courseId: course.id }),
+          credentials: "include",
+          body: JSON.stringify({ courseId: courseId }),
         });
         if (!res.ok) {
           throw new Error("Failed to delete course");
@@ -70,8 +111,26 @@ export default function CourseForm({ mode, course }: Props) {
         return;
       }
     } else {
-      // add api call to edit course
-      router.push(`/courses/${course?.id}`);
+      try {
+        const res = await fetch("/api/courses", {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({ courseId: courseId, ...payload }),
+        });
+        if (!res.ok) {
+          throw new Error("Failed to update course");
+        }
+        const data = await res.json();
+        console.log("Course updated:", data);
+        router.push("/courses");
+      } catch (error) {
+        console.error("Error creating course:", error);
+        alert("Failed to update course. Please try again.");
+        return;
+      }
     }
   };
 

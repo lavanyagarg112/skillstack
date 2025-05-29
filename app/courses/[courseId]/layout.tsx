@@ -2,6 +2,7 @@
 import { ReactNode } from "react";
 import Link from "next/link";
 import { getAuthUser } from "@/lib/auth";
+import { redirect } from "next/navigation";
 
 export default async function CourseLayout({
   children,
@@ -14,12 +15,10 @@ export default async function CourseLayout({
   const isAdmin = user?.organisation?.role === "admin";
   const { courseId } = await params;
 
-  // Dummy course; swap for DB call
-  const course = {
-    id: Number(courseId),
-    name: `Course #${courseId}`,
+  const response = {
+    id: courseId,
+    name: "Sample Course", // Replace with actual API call to fetch course details
   };
-
   return (
     <div className="max-w-4xl mx-auto bg-white p-6 rounded shadow">
       <nav className="text-sm mb-4">
@@ -27,13 +26,13 @@ export default async function CourseLayout({
           Courses
         </Link>
         <span className="mx-2">/</span>
-        <span className="font-medium">{course.name}</span>
+        <span className="font-medium">{response.name}</span>
       </nav>
 
       {isAdmin && (
         <div className="text-right mb-6 space-x-2">
           <Link
-            href={`/courses/${course.id}/edit`}
+            href={`/courses/${response.id}/edit`}
             className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded"
           >
             Edit Course Details
