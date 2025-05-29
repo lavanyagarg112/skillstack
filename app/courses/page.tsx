@@ -1,10 +1,13 @@
-// app/courses/page.tsx
+"use client";
+
 import CourseList from "@/components/organisation/courses/CourseList";
 import { Course } from "@/components/organisation/courses/CourseCard";
-import { getAuthUser } from "@/lib/auth";
+import { useAuth } from "@/context/AuthContext";
+import { useState, useEffect } from "react";
 
-export default async function CoursesPage() {
-  const user = await getAuthUser();
+export default function CoursesPage() {
+  const { user } = useAuth();
+  const [courses, setCourses] = useState<Course[]>([]);
 
   if (!user || !user.hasCompletedOnboarding) {
     return null;
@@ -12,11 +15,23 @@ export default async function CoursesPage() {
 
   const isAdmin = user?.organisation?.role === "admin";
 
-  // 2) Dummy data
-  const courses: Course[] = [
-    { id: 1, name: "Intro to TypeScript", description: "Learn TS basics" },
-    { id: 2, name: "Advanced React", description: "Hooks, Suspense, SSR" },
-  ];
+  useEffect(() => {
+    // Fetch courses from API or database
+    async function fetchCourses() {
+      // Replace with actual API call
+      const fetchedCourses = await fetch("/api/courses", {
+        credentials: "include",
+      })
+        .then((response) => response.json())
+        .then((data) => data["courses"] || [])
+        .catch((error) => {
+          console.error("Failed to fetch courses:", error);
+          return [];
+        });
+      setCourses(fetchedCourses);
+    }
+    fetchCourses();
+  }, []);
 
   // 3) Render the client component that will show/hide admin buttons
   return <CourseList courses={courses} isAdmin={isAdmin} />;
