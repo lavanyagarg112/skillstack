@@ -38,12 +38,6 @@ export default async function CourseLayout({
           >
             Edit Course Details
           </Link>
-          <Link
-            href={`/courses/${course.id}/edit/modules`}
-            className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded"
-          >
-            Edit Modules
-          </Link>
         </div>
       )}
 
