@@ -1,8 +1,6 @@
-// app/courses/[courseId]/layout.tsx
 import { ReactNode } from "react";
 import Link from "next/link";
 import { getAuthUser } from "@/lib/auth";
-import { redirect } from "next/navigation";
 
 export default async function CourseLayout({
   children,
