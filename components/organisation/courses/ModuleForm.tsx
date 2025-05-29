@@ -99,8 +99,32 @@ export default function ModuleForm({ mode, courseId, moduleId }: Props) {
         console.error("Error deleting module:", error);
         alert("Failed to delete module. Please try again.");
       }
-    } else router.push("/courses");
-    // module endpoints - new or delete or edit
+    } else {
+      const fd = new FormData();
+      fd.append("moduleId", moduleId || "");
+      fd.append("name", name);
+      fd.append("description", description);
+      if (uploadFile) {
+        fd.append("type", moduleType);
+        fd.append("file", uploadFile);
+      }
+      try {
+        const res = await fetch("/api/courses/update-module", {
+          method: "PUT",
+          credentials: "include",
+          body: fd,
+        });
+
+        if (!res.ok) throw new Error("Failed to update module");
+
+        const data = await res.json();
+        console.log("Module updated:", data);
+        router.push(`/courses/${courseId}/modules/${moduleId}`);
+      } catch (err) {
+        console.error(err);
+        alert("Could not update module. Please try again.");
+      }
+    }
   };
 
   return (
@@ -176,6 +200,13 @@ export default function ModuleForm({ mode, courseId, moduleId }: Props) {
         />
       </div>
       <div className="space-x-4">
+        {mode === "edit" && (
+          <p className="mb-4 text-sm text-red-500">
+            <strong>Note:</strong> If you upload a new file, the existing file
+            will be replaced with the new one. If you don't upload a new file,
+            the existing file and file type will remain unchanged.
+          </p>
+        )}
         <button
           type="submit"
           className="px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded"
