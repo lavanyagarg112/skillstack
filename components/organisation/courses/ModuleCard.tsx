@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export interface Module {
   id: number;
@@ -19,6 +20,31 @@ interface Props {
 export default function ModuleCard({ module, isEditMode }: Props) {
   const { courseId } = useParams() as { courseId: string };
   const [editingMode, setEditingMode] = useState(false);
+  const router = useRouter();
+
+  const handleDelete = async () => {
+    if (!confirm("Are you sure you want to delete this module?")) return;
+
+    try {
+      const response = await fetch("/api/courses/delete-module", {
+        method: "DELETE",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ moduleId: module.id }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete module");
+      }
+
+      router.push(`/courses`);
+    } catch (error) {
+      console.error("Error deleting module:", error);
+      alert("Failed to delete module. Please try again.");
+    }
+  };
 
   return (
     <div className="bg-white border rounded-lg p-4 shadow-sm hover:shadow-md transition">
@@ -55,9 +81,7 @@ export default function ModuleCard({ module, isEditMode }: Props) {
               </button>
               <button
                 className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded"
-                onClick={() =>
-                  alert("Delete module functionality not implemented yet")
-                }
+                onClick={handleDelete}
               >
                 Delete
               </button>
