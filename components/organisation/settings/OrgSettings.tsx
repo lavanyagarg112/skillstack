@@ -90,6 +90,7 @@ export default function OrgSettings() {
     if (!transferEmail) return;
     // open confirmation modal...
     // then call API to transfer ownership
+    alert(`Transfer ownership is not implemented yet.`);
   };
 
   return (
