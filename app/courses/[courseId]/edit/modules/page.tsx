@@ -1,7 +1,7 @@
 import ModuleList from "@/components/organisation/courses/ModuleList";
 import { Module } from "@/components/organisation/courses/ModuleCard";
 
-export default function CoursePage({
+export default function EditModulesPage({
   params,
 }: {
   params: { courseId: string };

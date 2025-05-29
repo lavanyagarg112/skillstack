@@ -31,12 +31,18 @@ export default async function CourseLayout({
       </nav>
 
       {isAdmin && (
-        <div className="text-right mb-6">
+        <div className="text-right mb-6 space-x-2">
           <Link
             href={`/courses/${course.id}/edit`}
             className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded"
           >
-            Edit Course
+            Edit Course Details
+          </Link>
+          <Link
+            href={`/courses/${course.id}/edit/modules`}
+            className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded"
+          >
+            Edit Modules
           </Link>
         </div>
       )}
