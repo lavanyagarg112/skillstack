@@ -7,9 +7,10 @@ import { ModuleDetailData } from "./ModuleDetail";
 interface Props {
   mode: "create" | "edit";
   courseId: string;
+  moduleId?: string;
 }
 
-export default function ModuleForm({ mode, courseId }: Props) {
+export default function ModuleForm({ mode, courseId, moduleId }: Props) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [uploadFile, setUploadFile] = useState<File | null>(null);
@@ -19,8 +20,35 @@ export default function ModuleForm({ mode, courseId }: Props) {
     useState<ModuleDetailData["module_type"]>("pdf");
 
   useEffect(() => {
-    // fetch module details
-  }, []);
+    async function fetchModuleDetails() {
+      try {
+        const response = await fetch(`/api/courses/get-module`, {
+          credentials: "include",
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ moduleId }),
+        });
+        if (!response.ok) {
+          throw new Error("Failed to fetch module details");
+        }
+        const result = await response.json();
+        setName(result.title);
+        setDescription(result.description);
+        setModuleType(result.module_type);
+      } catch (error) {
+        console.error("Error fetching module details:", error);
+        setName("");
+        setDescription("");
+        setModuleType("pdf");
+      }
+    }
+
+    if (mode === "edit" && moduleId) {
+      fetchModuleDetails();
+    }
+  }, [moduleId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,6 +76,28 @@ export default function ModuleForm({ mode, courseId }: Props) {
       } catch (err) {
         console.error(err);
         alert("Could not create module. Please try again.");
+      }
+    } else if (deleteMode) {
+      if (!confirm("Are you sure you want to delete this module?")) return;
+
+      try {
+        const response = await fetch("/api/courses/delete-module", {
+          method: "DELETE",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ moduleId }),
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to delete module");
+        }
+
+        router.push(`/courses`);
+      } catch (error) {
+        console.error("Error deleting module:", error);
+        alert("Failed to delete module. Please try again.");
       }
     } else router.push("/courses");
     // module endpoints - new or delete or edit
