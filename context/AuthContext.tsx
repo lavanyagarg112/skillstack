@@ -31,19 +31,51 @@ interface AuthCtx {
   user: User;
   setUser: (u: User) => void;
   logout: () => Promise<void>;
+  loading: boolean;
 }
 
 const AuthContext = createContext<AuthCtx | undefined>(undefined);
 
+// export function AuthProvider({ children }: { children: ReactNode }) {
+//   const [user, setUser] = useState<User>({ isLoggedIn: false });
+
+//   useEffect(() => {
+//     // 1) Fetch the “whoami”
+//     fetch("/api/me", { credentials: "include" })
+//       .then((r) => r.json())
+//       .then((u: User) => setUser(u))
+//       .catch(() => {});
+//   }, []);
+
+//   async function logout() {
+//     await fetch("/api/logout", { method: "POST", credentials: "include" });
+//     setUser({ isLoggedIn: false });
+//   }
+
+//   return (
+//     <AuthContext.Provider value={{ user, setUser, logout }}>
+//       {children}
+//     </AuthContext.Provider>
+//   );
+// }
+
+// export function useAuth() {
+//   const ctx = useContext(AuthContext);
+//   if (!ctx) throw new Error("useAuth must be inside AuthProvider");
+//   return ctx;
+// }
+
+// add a loading flag in state
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User>({ isLoggedIn: false });
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // 1) Fetch the “whoami”
     fetch("/api/me", { credentials: "include" })
       .then((r) => r.json())
       .then((u: User) => setUser(u))
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, []);
 
   async function logout() {
@@ -52,7 +84,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, setUser, logout }}>
+    <AuthContext.Provider value={{ user, setUser, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );
@@ -61,5 +93,5 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 export function useAuth() {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error("useAuth must be inside AuthProvider");
-  return ctx;
+  return ctx; // now includes { user, setUser, logout, loading }
 }

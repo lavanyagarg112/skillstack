@@ -22,11 +22,11 @@ export default function LayoutClient({
 
   const shouldRedirectToOnboarding = isLoggedIn && !user.hasCompletedOnboarding;
 
-  useEffect(() => {
-    if (shouldRedirectToOnboarding) {
-      router.push("/onboarding");
-    }
-  }, [shouldRedirectToOnboarding, router]);
+  // useEffect(() => {
+  //   if (shouldRedirectToOnboarding) {
+  //     router.push("/onboarding");
+  //   }
+  // }, [shouldRedirectToOnboarding, router]);
 
   // useEffect(() => {
   //   if (!isLoggedIn) {
