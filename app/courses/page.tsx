@@ -1,8 +1,38 @@
+"use client";
+
+import CourseList from "@/components/organisation/courses/CourseList";
+import { Course } from "@/components/organisation/courses/CourseCard";
+import { useAuth } from "@/context/AuthContext";
+import { useState, useEffect } from "react";
+
 export default function CoursesPage() {
-  return (
-    <div>
-      <h1>Courses</h1>
-      <p>List of courses will be displayed here.</p>
-    </div>
-  );
+  const { user } = useAuth();
+  const [courses, setCourses] = useState<Course[]>([]);
+
+  if (!user || !user.hasCompletedOnboarding) {
+    return null;
+  }
+
+  const isAdmin = user?.organisation?.role === "admin";
+
+  useEffect(() => {
+    // Fetch courses from API or database
+    async function fetchCourses() {
+      // Replace with actual API call
+      const fetchedCourses = await fetch("/api/courses", {
+        credentials: "include",
+      })
+        .then((response) => response.json())
+        .then((data) => data["courses"] || [])
+        .catch((error) => {
+          console.error("Failed to fetch courses:", error);
+          return [];
+        });
+      setCourses(fetchedCourses);
+    }
+    fetchCourses();
+  }, []);
+
+  // 3) Render the client component that will show/hide admin buttons
+  return <CourseList courses={courses} isAdmin={isAdmin} />;
 }

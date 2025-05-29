@@ -1,8 +1,6 @@
 "use client";
 
 import { useAuth } from "@/context/AuthContext";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
 import HeaderNav from "@/components/HeaderNav";
 import SideNav from "@/components/SideNav";
 import OrgNav from "@/components/organisation/OrgNav";
@@ -16,23 +14,8 @@ export default function LayoutClient({
 }) {
   const { user } = useAuth();
   const isLoggedIn = user && user.isLoggedIn;
-  const router = useRouter();
   const role = user && user.hasCompletedOnboarding && user.organisation?.role;
   const isAdmin = role === "admin";
-
-  const shouldRedirectToOnboarding = isLoggedIn && !user.hasCompletedOnboarding;
-
-  useEffect(() => {
-    if (shouldRedirectToOnboarding) {
-      router.push("/onboarding");
-    }
-  }, [shouldRedirectToOnboarding, router]);
-
-  useEffect(() => {
-    if (!isLoggedIn) {
-      router.push("/auth");
-    }
-  }, [isLoggedIn, router]);
 
   return (
     <div>
