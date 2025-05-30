@@ -21,10 +21,10 @@ export default async function CourseLayout({
     <div className="max-w-4xl mx-auto bg-white p-6 rounded shadow">
       <nav className="text-sm mb-4">
         <Link href="/courses" className="text-purple-600 hover:underline">
-          Courses
+          Go to All Courses
         </Link>
-        <span className="mx-2">/</span>
-        <span className="font-medium">{response.name}</span>
+        {/* <span className="mx-2">/</span>
+        <span className="font-medium">{response.name}</span> */}
       </nav>
 
       {isAdmin && (
