@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import LayoutClient from "./layoutClient";
+import AuthServerProvider from "./AuthClientServer";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,7 +21,9 @@ export default async function RootLayout({
     <html lang="en">
       <body className={`${inter.className} bg-white`}>
         <AuthProvider>
-          <LayoutClient>{children}</LayoutClient>
+          <AuthServerProvider>
+            <LayoutClient>{children}</LayoutClient>
+          </AuthServerProvider>
         </AuthProvider>
       </body>
     </html>

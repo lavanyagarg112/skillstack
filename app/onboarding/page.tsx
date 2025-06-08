@@ -8,9 +8,13 @@ export default function OnboardingPage() {
   const router = useRouter();
   const { user, setUser } = useAuth();
 
+  if (!user || !user.isLoggedIn) {
+    return null;
+  }
+
   const [role, setRole] = useState<"admin" | "employee">("employee");
   const [orgName, setOrgName] = useState("");
-  const [orgId, setOrgId] = useState("");
+  const [orgInvite, setOrgInvite] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -37,7 +41,9 @@ export default function OnboardingPage() {
           method: "POST",
           credentials: "include",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ organisationId: orgId }),
+          body: JSON.stringify({
+            inviteCode: orgInvite,
+          }),
         });
         if (!addemp.ok) {
           const body = await addemp.json().catch(() => ({}));
@@ -45,7 +51,6 @@ export default function OnboardingPage() {
         }
       }
 
-      // 2) Mark onboarding complete
       const done = await fetch("/api/complete-onboarding", {
         method: "POST",
         credentials: "include",
@@ -137,8 +142,8 @@ export default function OnboardingPage() {
             <input
               id="orgName"
               type="text"
-              value={orgId}
-              onChange={(e) => setOrgId(e.target.value)}
+              value={orgInvite}
+              onChange={(e) => setOrgInvite(e.target.value)}
               required
               className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-purple-300"
             />
