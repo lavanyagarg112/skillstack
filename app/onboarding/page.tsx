@@ -42,7 +42,6 @@ export default function OnboardingPage() {
           credentials: "include",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            organisationName: orgName,
             inviteCode: orgInvite,
           }),
         });
@@ -133,22 +132,6 @@ export default function OnboardingPage() {
       )}
       {role === "employee" && (
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label
-              htmlFor="orgName"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Organization Name
-            </label>
-            <input
-              id="orgName"
-              type="text"
-              value={orgName}
-              onChange={(e) => setOrgName(e.target.value)}
-              required
-              className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-purple-300"
-            />
-          </div>
           <div>
             <label
               htmlFor="orgName"
