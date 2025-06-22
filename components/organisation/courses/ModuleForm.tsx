@@ -204,55 +204,94 @@ export default function ModuleForm({ mode, courseId, moduleId }: Props) {
                 <option value="multiple_choice">Multiple Choice</option>
                 <option value="true_false">True / False</option>
               </select>
-              {q.options.map((opt, oi) => (
-                <div key={oi} className="flex items-center space-x-2 mb-1">
-                  <input
-                    type="text"
-                    placeholder={`Option ${oi + 1}`}
-                    value={opt.option_text}
-                    onChange={(e) => {
-                      const qs = [...questions];
-                      qs[qi].options[oi].option_text = e.target.value;
-                      setQuestions(qs);
-                    }}
-                    className="flex-1 p-2 border rounded"
-                  />
-                  <label className="flex items-center space-x-1">
-                    <input
-                      type="checkbox"
-                      checked={opt.is_correct}
-                      onChange={(e) => {
-                        const qs = [...questions];
-                        qs[qi].options[oi].is_correct = e.target.checked;
-                        setQuestions(qs);
-                      }}
-                    />
-                    <span>Correct</span>
-                  </label>
+              {q.question_type === "true_false" ? (
+                <div className="flex space-x-6 mb-2">
+                  {["True", "False"].map((label) => (
+                    <label key={label} className="flex items-center space-x-1">
+                      <input
+                        type="radio"
+                        name={`q-${qi}`} // groups the two radios per question
+                        checked={
+                          !!q.options.find(
+                            (opt) => opt.option_text === label && opt.is_correct
+                          )
+                        }
+                        onChange={() => {
+                          const qs = [...questions];
+                          // reset to exactly these two options, marking the chosen one correct
+                          qs[qi].options = [
+                            {
+                              option_text: "True",
+                              is_correct: label === "True",
+                            },
+                            {
+                              option_text: "False",
+                              is_correct: label === "False",
+                            },
+                          ];
+                          setQuestions(qs);
+                        }}
+                      />
+                      <span>{label}</span>
+                    </label>
+                  ))}
+                </div>
+              ) : (
+                <>
+                  {q.options.map((opt, oi) => (
+                    <div key={oi} className="flex items-center space-x-2 mb-1">
+                      <input
+                        type="text"
+                        placeholder={`Option ${oi + 1}`}
+                        value={opt.option_text}
+                        onChange={(e) => {
+                          const qs = [...questions];
+                          qs[qi].options[oi].option_text = e.target.value;
+                          setQuestions(qs);
+                        }}
+                        className="flex-1 p-2 border rounded"
+                      />
+                      <label className="flex items-center space-x-1">
+                        <input
+                          type="checkbox"
+                          checked={opt.is_correct}
+                          onChange={(e) => {
+                            const qs = [...questions];
+                            qs[qi].options[oi].is_correct = e.target.checked;
+                            setQuestions(qs);
+                          }}
+                        />
+                        <span>Correct</span>
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const qs = [...questions];
+                          qs[qi].options.splice(oi, 1);
+                          setQuestions(qs);
+                        }}
+                        className="text-red-500"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
                   <button
                     type="button"
                     onClick={() => {
                       const qs = [...questions];
-                      qs[qi].options.splice(oi, 1);
+                      qs[qi].options.push({
+                        option_text: "",
+                        is_correct: false,
+                      });
                       setQuestions(qs);
                     }}
-                    className="text-red-500"
+                    className="text-purple-600"
                   >
-                    ×
+                    + Add Option
                   </button>
-                </div>
-              ))}
-              <button
-                type="button"
-                onClick={() => {
-                  const qs = [...questions];
-                  qs[qi].options.push({ option_text: "", is_correct: false });
-                  setQuestions(qs);
-                }}
-                className="text-purple-600"
-              >
-                + Add Option
-              </button>
+                </>
+              )}
               <hr className="my-2" />
               <button
                 type="button"
