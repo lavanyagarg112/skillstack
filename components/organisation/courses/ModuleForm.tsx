@@ -25,13 +25,7 @@ export default function ModuleForm({ mode, courseId, moduleId }: Props) {
   const [moduleType, setModuleType] =
     useState<ModuleDetailData["module_type"]>("pdf");
 
-  const [questions, setQuestions] = useState<Question[]>([
-    {
-      question_text: "",
-      question_type: "multiple_choice",
-      options: [{ option_text: "", is_correct: false }],
-    },
-  ]);
+  const [questions, setQuestions] = useState<Question[]>([]);
 
   useEffect(() => {
     async function fetchModuleDetails() {
@@ -72,7 +66,48 @@ export default function ModuleForm({ mode, courseId, moduleId }: Props) {
       fd.append("name", name);
       fd.append("description", description);
       fd.append("type", moduleType);
-      if (uploadFile) {
+      if (moduleType === "quiz") {
+        if (questions.length === 0) {
+          alert("Please add at least one question.");
+          return;
+        }
+        for (let i = 0; i < questions.length; i++) {
+          const q = questions[i];
+          if (!q.question_text.trim()) {
+            alert(`Question ${i + 1} is empty. Please enter question text.`);
+            return;
+          }
+          if (q.question_type === "multiple_choice") {
+            if (q.options.length === 0) {
+              alert(`Question ${i + 1} must have at least one option.`);
+              return;
+            }
+            if (q.options.some((opt) => !opt.option_text.trim())) {
+              alert(`All options for question ${i + 1} must have text.`);
+              return;
+            }
+            if (!q.options.some((opt) => opt.is_correct)) {
+              alert(
+                `Please mark at least one correct answer for question ${i + 1}.`
+              );
+              return;
+            }
+          } else if (q.question_type === "true_false") {
+            const correctCount = q.options.filter(
+              (opt) => opt.is_correct
+            ).length;
+            if (correctCount !== 1) {
+              alert(
+                `Please mark the correct answer for question ${
+                  i + 1
+                } as either True or False.`
+              );
+              return;
+            }
+          }
+        }
+        fd.append("questions", JSON.stringify(questions));
+      } else if (uploadFile) {
         fd.append("file", uploadFile);
       }
       try {
@@ -118,7 +153,10 @@ export default function ModuleForm({ mode, courseId, moduleId }: Props) {
       fd.append("moduleId", moduleId || "");
       fd.append("name", name);
       fd.append("description", description);
-      if (uploadFile) {
+      if (moduleType === "quiz") {
+        fd.append("type", moduleType);
+        fd.append("questions", JSON.stringify(questions));
+      } else if (uploadFile) {
         fd.append("type", moduleType);
         fd.append("file", uploadFile);
       }
