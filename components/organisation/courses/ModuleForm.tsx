@@ -210,7 +210,7 @@ export default function ModuleForm({ mode, courseId, moduleId }: Props) {
                     <label key={label} className="flex items-center space-x-1">
                       <input
                         type="radio"
-                        name={`q-${qi}`} // groups the two radios per question
+                        name={`q-${qi}`}
                         checked={
                           !!q.options.find(
                             (opt) => opt.option_text === label && opt.is_correct
@@ -218,7 +218,6 @@ export default function ModuleForm({ mode, courseId, moduleId }: Props) {
                         }
                         onChange={() => {
                           const qs = [...questions];
-                          // reset to exactly these two options, marking the chosen one correct
                           qs[qi].options = [
                             {
                               option_text: "True",
