@@ -10,6 +10,12 @@ interface Props {
   moduleId?: string;
 }
 
+interface Question {
+  question_text: string;
+  question_type: "multiple_choice" | "true_false";
+  options: { option_text: string; is_correct: boolean }[];
+}
+
 export default function ModuleForm({ mode, courseId, moduleId }: Props) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -18,6 +24,8 @@ export default function ModuleForm({ mode, courseId, moduleId }: Props) {
   const router = useRouter();
   const [moduleType, setModuleType] =
     useState<ModuleDetailData["module_type"]>("pdf");
+
+  const [questions, setQuestions] = useState<Question[]>([]);
 
   useEffect(() => {
     async function fetchModuleDetails() {
@@ -58,7 +66,48 @@ export default function ModuleForm({ mode, courseId, moduleId }: Props) {
       fd.append("name", name);
       fd.append("description", description);
       fd.append("type", moduleType);
-      if (uploadFile) {
+      if (moduleType === "quiz") {
+        if (questions.length === 0) {
+          alert("Please add at least one question.");
+          return;
+        }
+        for (let i = 0; i < questions.length; i++) {
+          const q = questions[i];
+          if (!q.question_text.trim()) {
+            alert(`Question ${i + 1} is empty. Please enter question text.`);
+            return;
+          }
+          if (q.question_type === "multiple_choice") {
+            if (q.options.length === 0) {
+              alert(`Question ${i + 1} must have at least one option.`);
+              return;
+            }
+            if (q.options.some((opt) => !opt.option_text.trim())) {
+              alert(`All options for question ${i + 1} must have text.`);
+              return;
+            }
+            if (!q.options.some((opt) => opt.is_correct)) {
+              alert(
+                `Please mark at least one correct answer for question ${i + 1}.`
+              );
+              return;
+            }
+          } else if (q.question_type === "true_false") {
+            const correctCount = q.options.filter(
+              (opt) => opt.is_correct
+            ).length;
+            if (correctCount !== 1) {
+              alert(
+                `Please mark the correct answer for question ${
+                  i + 1
+                } as either True or False.`
+              );
+              return;
+            }
+          }
+        }
+        fd.append("questions", JSON.stringify(questions));
+      } else if (uploadFile) {
         fd.append("file", uploadFile);
       }
       try {
@@ -104,7 +153,45 @@ export default function ModuleForm({ mode, courseId, moduleId }: Props) {
       fd.append("moduleId", moduleId || "");
       fd.append("name", name);
       fd.append("description", description);
-      if (uploadFile) {
+      if (moduleType === "quiz" && questions.length > 0) {
+        for (let i = 0; i < questions.length; i++) {
+          const q = questions[i];
+          if (!q.question_text.trim()) {
+            alert(`Question ${i + 1} is empty. Please enter question text.`);
+            return;
+          }
+          if (q.question_type === "multiple_choice") {
+            if (q.options.length === 0) {
+              alert(`Question ${i + 1} must have at least one option.`);
+              return;
+            }
+            if (q.options.some((opt) => !opt.option_text.trim())) {
+              alert(`All options for question ${i + 1} must have text.`);
+              return;
+            }
+            if (!q.options.some((opt) => opt.is_correct)) {
+              alert(
+                `Please mark at least one correct answer for question ${i + 1}.`
+              );
+              return;
+            }
+          } else if (q.question_type === "true_false") {
+            const correctCount = q.options.filter(
+              (opt) => opt.is_correct
+            ).length;
+            if (correctCount !== 1) {
+              alert(
+                `Please mark the correct answer for question ${
+                  i + 1
+                } as either True or False.`
+              );
+              return;
+            }
+          }
+        }
+        fd.append("type", moduleType);
+        fd.append("questions", JSON.stringify(questions));
+      } else if (uploadFile) {
         fd.append("type", moduleType);
         fd.append("file", uploadFile);
       }
@@ -162,23 +249,170 @@ export default function ModuleForm({ mode, courseId, moduleId }: Props) {
           <option value="quiz">Quiz</option>
         </select>
       </div>
-      <div>
-        <label className="block text-gray-700">Upload Material</label>{" "}
-        <input
-          key={moduleType}
-          type="file"
-          accept={
-            moduleType === "video"
-              ? "video/*"
-              : moduleType === "pdf"
-              ? "application/pdf"
-              : moduleType === "slide"
-              ? ".ppt,.pptx,application/pdf"
-              : undefined
-          }
-          onChange={(e) => setUploadFile(e.target.files?.[0] || null)}
-          required={mode === "create"}
-          className="
+      {moduleType === "quiz" ? (
+        <div>
+          <h3 className="text-gray-700">Quiz Questions</h3>
+          {questions.map((q, qi) => (
+            <div key={qi} className="mb-4 p-4 border rounded">
+              <input
+                type="text"
+                placeholder={`Question ${qi + 1}`}
+                value={q.question_text}
+                onChange={(e) => {
+                  const qs = [...questions];
+                  qs[qi].question_text = e.target.value;
+                  setQuestions(qs);
+                }}
+                className="w-full mb-2 p-2 border rounded"
+              />
+              <select
+                value={q.question_type}
+                onChange={(e) => {
+                  const qs = [...questions];
+                  qs[qi].question_type = e.target.value as any;
+                  setQuestions(qs);
+                }}
+                className="mb-2 p-2 border rounded"
+              >
+                <option value="multiple_choice">Multiple Choice</option>
+                <option value="true_false">True / False</option>
+              </select>
+              {q.question_type === "true_false" ? (
+                <div className="flex space-x-6 mb-2">
+                  {["True", "False"].map((label) => (
+                    <label key={label} className="flex items-center space-x-1">
+                      <input
+                        type="radio"
+                        name={`q-${qi}`}
+                        checked={
+                          !!q.options.find(
+                            (opt) => opt.option_text === label && opt.is_correct
+                          )
+                        }
+                        onChange={() => {
+                          const qs = [...questions];
+                          qs[qi].options = [
+                            {
+                              option_text: "True",
+                              is_correct: label === "True",
+                            },
+                            {
+                              option_text: "False",
+                              is_correct: label === "False",
+                            },
+                          ];
+                          setQuestions(qs);
+                        }}
+                      />
+                      <span>{label}</span>
+                    </label>
+                  ))}
+                </div>
+              ) : (
+                <>
+                  {q.options.map((opt, oi) => (
+                    <div key={oi} className="flex items-center space-x-2 mb-1">
+                      <input
+                        type="text"
+                        placeholder={`Option ${oi + 1}`}
+                        value={opt.option_text}
+                        onChange={(e) => {
+                          const qs = [...questions];
+                          qs[qi].options[oi].option_text = e.target.value;
+                          setQuestions(qs);
+                        }}
+                        className="flex-1 p-2 border rounded"
+                      />
+                      <label className="flex items-center space-x-1">
+                        <input
+                          type="checkbox"
+                          checked={opt.is_correct}
+                          onChange={(e) => {
+                            const qs = [...questions];
+                            qs[qi].options[oi].is_correct = e.target.checked;
+                            setQuestions(qs);
+                          }}
+                        />
+                        <span>Correct</span>
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const qs = [...questions];
+                          qs[qi].options.splice(oi, 1);
+                          setQuestions(qs);
+                        }}
+                        className="text-red-500"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const qs = [...questions];
+                      qs[qi].options.push({
+                        option_text: "",
+                        is_correct: false,
+                      });
+                      setQuestions(qs);
+                    }}
+                    className="text-purple-600"
+                  >
+                    + Add Option
+                  </button>
+                </>
+              )}
+              <hr className="my-2" />
+              <button
+                type="button"
+                onClick={() => {
+                  const qs = [...questions];
+                  qs.splice(qi, 1);
+                  setQuestions(qs);
+                }}
+                className="text-red-600"
+              >
+                Remove Question
+              </button>
+            </div>
+          ))}
+          <button
+            type="button"
+            onClick={() =>
+              setQuestions([
+                ...questions,
+                {
+                  question_text: "",
+                  question_type: "multiple_choice",
+                  options: [{ option_text: "", is_correct: false }],
+                },
+              ])
+            }
+            className="px-4 py-2 bg-green-500 text-white rounded"
+          >
+            + Add Question
+          </button>
+        </div>
+      ) : (
+        <div>
+          <label className="block text-gray-700">Upload Material</label>{" "}
+          <input
+            key={moduleType}
+            type="file"
+            accept={
+              moduleType === "video"
+                ? "video/*"
+                : moduleType === "pdf"
+                ? "application/pdf"
+                : moduleType === "slide"
+                ? ".ppt,.pptx,application/pdf"
+                : undefined
+            }
+            onChange={(e) => setUploadFile(e.target.files?.[0] || null)}
+            required={mode === "create"}
+            className="
       block w-full 
       mt-1 p-3 
       text-gray-600 bg-white 
@@ -197,8 +431,9 @@ export default function ModuleForm({ mode, courseId, moduleId }: Props) {
       file:font-semibold 
       hover:file:bg-purple-700
     "
-        />
-      </div>
+          />
+        </div>
+      )}
       <div className="space-x-4">
         {mode === "edit" && (
           <p className="mb-4 text-sm text-red-500">
