@@ -78,12 +78,22 @@ export default function ModuleDetail({ moduleId }: Props) {
               <p className="font-medium">{q.question_text}</p>
               {q.options?.map((opt) => (
                 <div key={opt.id} className="flex items-center space-x-2">
-                  <input
-                    type="radio"
-                    name={`q-${q.id}`}
-                    disabled
-                    className="border-gray-300"
-                  />
+                  {q.question_type === "multiple_choice" && (
+                    <input
+                      type="checkbox"
+                      name={`q-${q.id}`}
+                      disabled
+                      className="border-gray-300"
+                    />
+                  )}
+                  {q.question_type === "true_false" && (
+                    <input
+                      type="radio"
+                      name={`q-${q.id}`}
+                      disabled
+                      className="border-gray-300"
+                    />
+                  )}
                   <label>{opt.option_text}</label>
                 </div>
               ))}
