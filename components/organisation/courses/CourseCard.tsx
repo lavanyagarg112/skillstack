@@ -45,6 +45,27 @@ export default function CourseCard({ course, isAdmin, isEnrolled }: Props) {
     }
   };
 
+  const handleUnEnroll = async () => {
+    try {
+      const response = await fetch("/api/courses/unenroll-course", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ courseId: course.id }),
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to unenroll from course");
+      }
+
+      window.location.reload();
+    } catch (error) {
+      console.error("Error unenrolling from course:", error);
+    }
+  };
+
   return (
     <div className="bg-white border rounded-lg p-6 shadow-sm hover:shadow-md transition">
       <h2 className="text-xl font-semibold text-purple-600">{course.name}</h2>
@@ -62,6 +83,14 @@ export default function CourseCard({ course, isAdmin, isEnrolled }: Props) {
             onClick={handleEnroll}
           >
             Enroll
+          </button>
+        )}
+        {!isAdmin && isEnrolled && (
+          <button
+            className="text-purple-600 hover:underline"
+            onClick={handleUnEnroll}
+          >
+            UnEnroll
           </button>
         )}
         {isAdmin && (
