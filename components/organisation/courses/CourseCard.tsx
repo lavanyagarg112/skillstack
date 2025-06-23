@@ -11,9 +11,61 @@ export interface Course {
 interface Props {
   course: Course;
   isAdmin: boolean;
+  isEnrolled: boolean;
 }
 
-export default function CourseCard({ course, isAdmin }: Props) {
+// todo
+// get user enrollements from backed
+// so from backend: user enrollments + other courses
+// endpoints to:
+// 1. get all courses (admin)
+// 2. get user enrollments (user)
+// 3. get other courses (user)
+// admin is not enrolled in any course
+
+export default function CourseCard({ course, isAdmin, isEnrolled }: Props) {
+  const handleEnroll = async () => {
+    try {
+      const response = await fetch("/api/courses/enroll-course", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ courseId: course.id }),
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to enroll in course");
+      }
+
+      window.location.reload();
+    } catch (error) {
+      console.error("Error enrolling in course:", error);
+    }
+  };
+
+  const handleUnEnroll = async () => {
+    try {
+      const response = await fetch("/api/courses/unenroll-course", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ courseId: course.id }),
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to unenroll from course");
+      }
+
+      window.location.reload();
+    } catch (error) {
+      console.error("Error unenrolling from course:", error);
+    }
+  };
+
   return (
     <div className="bg-white border rounded-lg p-6 shadow-sm hover:shadow-md transition">
       <h2 className="text-xl font-semibold text-purple-600">{course.name}</h2>
@@ -25,6 +77,22 @@ export default function CourseCard({ course, isAdmin }: Props) {
             View Modules
           </button>
         </Link>
+        {!isAdmin && !isEnrolled && (
+          <button
+            className="text-purple-600 hover:underline"
+            onClick={handleEnroll}
+          >
+            Enroll
+          </button>
+        )}
+        {!isAdmin && isEnrolled && (
+          <button
+            className="text-purple-600 hover:underline"
+            onClick={handleUnEnroll}
+          >
+            UnEnroll
+          </button>
+        )}
         {isAdmin && (
           <Link href={`/courses/${course.id}/edit`}>
             <button className="px-3 py-1 border border-purple-600 rounded text-purple-600 hover:bg-purple-50">
