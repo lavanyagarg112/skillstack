@@ -13,9 +13,10 @@ export interface Module {
 interface Props {
   module: Module;
   isEditMode: boolean;
+  isEnrolled: boolean;
 }
 
-export default function ModuleCard({ module, isEditMode }: Props) {
+export default function ModuleCard({ module, isEditMode, isEnrolled }: Props) {
   const { courseId } = useParams() as { courseId: string };
 
   return (
@@ -30,11 +31,18 @@ export default function ModuleCard({ module, isEditMode }: Props) {
           </p>
         </div>
         <div className="flex items-center space-x-2">
-          <Link href={`/courses/${courseId}/modules/${module.id}`}>
+          {(isEnrolled || isEditMode) && (
+            <Link href={`/courses/${courseId}/modules/${module.id}`}>
+              <button className="px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white rounded">
+                Open
+              </button>
+            </Link>
+          )}
+          {!isEnrolled && !isEditMode && (
             <button className="px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white rounded">
-              Open
+              Enroll to View
             </button>
-          </Link>
+          )}
           {isEditMode && (
             <Link href={`/courses/${courseId}/modules/${module.id}/edit`}>
               <button className="px-3 py-1 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded">
