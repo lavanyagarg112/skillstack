@@ -27,6 +27,7 @@ interface Props {
 
 export default function ModuleDetail({ moduleId }: Props) {
   const [data, setData] = React.useState<ModuleDetailData | null>(null);
+  const [endrolled, setEnrolled] = React.useState<boolean>(false);
 
   useEffect(() => {
     async function fetchModuleDetails() {
@@ -49,11 +50,40 @@ export default function ModuleDetail({ moduleId }: Props) {
         setData(null);
       }
     }
+    async function checkEnrollmentInCourse() {
+      try {
+        const response = await fetch(`/api/courses/is-enrolled`, {
+          credentials: "include",
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ courseId: moduleId }),
+        });
+        if (!response.ok) {
+          throw new Error("Failed to check enrollment");
+        }
+        const data = await response.json();
+        setEnrolled(data.enrolled);
+      } catch (error) {
+        console.error("Error checking enrollment:", error);
+        setEnrolled(false);
+      }
+    }
+    checkEnrollmentInCourse();
     fetchModuleDetails();
   }, [moduleId]);
 
   if (!data) {
     return <p className="text-gray-600">Loading module details...</p>;
+  }
+
+  if (!endrolled) {
+    return (
+      <p className="text-red-600">
+        You must be enrolled in the course to view this module.
+      </p>
+    );
   }
 
   const finalUrl = `http://localhost:4000${data.file_url}`;
