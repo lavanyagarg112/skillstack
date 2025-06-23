@@ -2,12 +2,18 @@
 
 import React, { useEffect } from "react";
 import { useParams } from "next/navigation";
+import { useState } from "react";
+
+export interface QuizOption {
+  id: number;
+  option_text: string;
+}
 
 export interface QuizQuestion {
   id: number;
   question_text: string;
-  question_type: string;
-  options?: { id: number; option_text: string }[];
+  question_type: "multiple_choice" | "true_false";
+  options: QuizOption[];
 }
 
 export interface ModuleDetailData {
@@ -17,6 +23,7 @@ export interface ModuleDetailData {
   description?: string;
   file_url?: string;
   quiz?: {
+    id: number;
     title: string;
     questions: QuizQuestion[];
   };
@@ -30,6 +37,7 @@ export default function ModuleDetail({ moduleId }: Props) {
   const [data, setData] = React.useState<ModuleDetailData | null>(null);
   const [endrolled, setEnrolled] = React.useState<boolean>(false);
   const { courseId } = useParams() as { courseId: string };
+  const [answers, setAnswers] = useState<Record<number, number | number[]>>({});
 
   useEffect(() => {
     async function fetchModuleDetails() {
@@ -88,55 +96,118 @@ export default function ModuleDetail({ moduleId }: Props) {
     );
   }
 
-  const finalUrl = `http://localhost:4000${data.file_url}`;
+  if (
+    data.module_type !== "video" &&
+    data.module_type !== "pdf" &&
+    data.module_type !== "slide" &&
+    data.module_type !== "quiz"
+  ) {
+    return (
+      <p className="text-gray-600">
+        No preview available for this module type: {data.module_type}.
+      </p>
+    );
+  }
+
+  if (data.module_type !== "quiz") {
+    const finalUrl = `http://localhost:4000${data.file_url}`;
+    return (
+      <div className="space-y-6">
+        <h2 className="text-3xl font-bold text-purple-600">{data.title}</h2>
+        <p>{data.description}</p>
+
+        {data.module_type === "video" && data.file_url && (
+          <video controls src={finalUrl} className="w-full rounded-lg" />
+        )}
+
+        {["pdf", "slide"].includes(data.module_type) && data.file_url && (
+          <iframe
+            src={finalUrl}
+            className="w-full h-[600px] rounded-lg border"
+          />
+        )}
+      </div>
+    );
+  }
+
+  const { quiz } = data;
+
+  const handleChange = (qId: number, optId: number, multiple: boolean) => {
+    setAnswers((ans) => {
+      if (multiple) {
+        const prev = Array.isArray(ans[qId]) ? (ans[qId] as number[]) : [];
+        if (prev.includes(optId)) {
+          return { ...ans, [qId]: prev.filter((x) => x !== optId) };
+        } else {
+          return { ...ans, [qId]: [...prev, optId] };
+        }
+      } else {
+        return { ...ans, [qId]: optId };
+      }
+    });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const payload = {
+      quizId: quiz?.id,
+      answers: Object.entries(answers).map(([qId, sel]) => ({
+        questionId: Number(qId),
+
+        selectedOptionIds: Array.isArray(sel) ? sel : [sel],
+      })),
+    };
+    try {
+      const res = await fetch("/api/courses/submit-quiz", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) throw new Error("Submit failed");
+      alert("Quiz submitted!");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to submit quiz.");
+    }
+  };
+
   return (
-    <div className="space-y-6">
-      <h2 className="text-3xl font-bold text-purple-600">{data.title}</h2>
-      <p>{data.description}</p>
-
-      {data.module_type === "video" && data.file_url && (
-        <video controls src={finalUrl} className="w-full rounded-lg" />
-      )}
-
-      {["pdf", "slide"].includes(data.module_type) && data.file_url && (
-        <iframe src={finalUrl} className="w-full h-[600px] rounded-lg border" />
-      )}
-
-      {data.module_type === "quiz" && data.quiz && (
-        <div className="space-y-4">
-          <h3 className="text-2xl font-semibold">{data.quiz.title}</h3>
-          {data.quiz.questions.map((q) => (
-            <div key={q.id} className="space-y-2">
-              <p className="font-medium">{q.question_text}</p>
-              {q.options?.map((opt) => (
-                <div key={opt.id} className="flex items-center space-x-2">
-                  {q.question_type === "multiple_choice" && (
-                    <input
-                      type="checkbox"
-                      name={`q-${q.id}`}
-                      disabled
-                      className="border-gray-300"
-                    />
-                  )}
-                  {q.question_type === "true_false" && (
-                    <input
-                      type="radio"
-                      name={`q-${q.id}`}
-                      disabled
-                      className="border-gray-300"
-                    />
-                  )}
-                  <label>{opt.option_text}</label>
-                </div>
-              ))}
-            </div>
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <h2 className="text-3xl font-bold">{data.title}</h2>
+      {quiz?.questions.map((q) => (
+        <div key={q.id} className="space-y-2">
+          <p className="font-medium">{q.question_text}</p>
+          {q.options.map((opt) => (
+            <label key={opt.id} className="flex items-center space-x-2">
+              <input
+                type={q.question_type === "true_false" ? "radio" : "checkbox"}
+                name={`q-${q.id}`}
+                value={opt.id}
+                checked={
+                  q.question_type === "true_false"
+                    ? answers[q.id] === opt.id
+                    : Array.isArray(answers[q.id]) &&
+                      (answers[q.id] as number[]).includes(opt.id)
+                }
+                onChange={() =>
+                  handleChange(q.id, opt.id, q.question_type !== "true_false")
+                }
+                className="border-gray-300"
+                required={q.question_type === "true_false"}
+              />
+              <span>{opt.option_text}</span>
+            </label>
           ))}
         </div>
-      )}
-
-      {!["video", "pdf", "slide", "quiz"].includes(data.module_type) && (
-        <p className="text-gray-600">No preview available for this module.</p>
-      )}
-    </div>
+      ))}
+      <button
+        type="submit"
+        className="px-4 py-2 bg-purple-600 text-white rounded"
+      >
+        Submit Quiz
+      </button>
+    </form>
   );
 }
