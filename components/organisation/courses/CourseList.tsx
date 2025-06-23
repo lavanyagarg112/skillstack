@@ -6,9 +6,10 @@ import CourseCard, { Course } from "./CourseCard";
 interface Props {
   courses: Course[];
   isAdmin: boolean;
+  isEnrolled: boolean;
 }
 
-export default function CourseList({ courses, isAdmin }: Props) {
+export default function CourseList({ courses, isAdmin, isEnrolled }: Props) {
   return (
     <div className="space-y-6">
       {isAdmin && (
@@ -23,7 +24,12 @@ export default function CourseList({ courses, isAdmin }: Props) {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {courses.map((c) => (
-          <CourseCard key={c.id} course={c} isAdmin={isAdmin} />
+          <CourseCard
+            key={c.id}
+            course={c}
+            isAdmin={isAdmin}
+            isEnrolled={isEnrolled}
+          />
         ))}
       </div>
     </div>

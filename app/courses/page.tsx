@@ -56,7 +56,7 @@ export default function CoursesPage() {
   }, [isAdmin]);
 
   if (isAdmin) {
-    return <CourseList courses={courses} isAdmin={true} />;
+    return <CourseList courses={courses} isAdmin={true} isEnrolled={true} />;
   }
 
   return (
@@ -64,7 +64,7 @@ export default function CoursesPage() {
       <section>
         <h2 className="text-2xl font-semibold text-purple-600">My Courses</h2>
         {enrolled.length > 0 ? (
-          <CourseList courses={enrolled} isAdmin={false} />
+          <CourseList courses={enrolled} isAdmin={false} isEnrolled={true} />
         ) : (
           <p className="text-gray-600">
             You’re not enrolled in any courses yet.
@@ -77,7 +77,7 @@ export default function CoursesPage() {
           Available Courses
         </h2>
         {other.length > 0 ? (
-          <CourseList courses={other} isAdmin={false} />
+          <CourseList courses={other} isAdmin={false} isEnrolled={false} />
         ) : (
           <p className="text-gray-600">No other courses available.</p>
         )}

@@ -11,6 +11,7 @@ export interface Course {
 interface Props {
   course: Course;
   isAdmin: boolean;
+  isEnrolled: boolean;
 }
 
 // todo
@@ -22,7 +23,7 @@ interface Props {
 // 3. get other courses (user)
 // admin is not enrolled in any course
 
-export default function CourseCard({ course, isAdmin }: Props) {
+export default function CourseCard({ course, isAdmin, isEnrolled }: Props) {
   return (
     <div className="bg-white border rounded-lg p-6 shadow-sm hover:shadow-md transition">
       <h2 className="text-xl font-semibold text-purple-600">{course.name}</h2>
@@ -34,7 +35,7 @@ export default function CourseCard({ course, isAdmin }: Props) {
             View Modules
           </button>
         </Link>
-        {!isAdmin && (
+        {!isAdmin && !isEnrolled && (
           <button
             className="text-purple-600 hover:underline"
             onClick={() => {}}
