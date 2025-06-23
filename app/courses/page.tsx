@@ -62,7 +62,9 @@ export default function CoursesPage() {
   return (
     <div className="space-y-8">
       <section>
-        <h2 className="text-2xl font-semibold text-purple-600">My Courses</h2>
+        <h2 className="text-2xl font-semibold text-purple-600 mb-4">
+          My Courses
+        </h2>
         {enrolled.length > 0 ? (
           <CourseList courses={enrolled} isAdmin={false} isEnrolled={true} />
         ) : (
@@ -73,7 +75,7 @@ export default function CoursesPage() {
       </section>
 
       <section>
-        <h2 className="text-2xl font-semibold text-purple-600">
+        <h2 className="text-2xl font-semibold text-purple-600 mb-4">
           Available Courses
         </h2>
         {other.length > 0 ? (
