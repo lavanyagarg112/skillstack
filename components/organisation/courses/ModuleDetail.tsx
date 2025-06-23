@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect } from "react";
+import { useParams } from "next/navigation";
 
 export interface QuizQuestion {
   id: number;
@@ -28,6 +29,7 @@ interface Props {
 export default function ModuleDetail({ moduleId }: Props) {
   const [data, setData] = React.useState<ModuleDetailData | null>(null);
   const [endrolled, setEnrolled] = React.useState<boolean>(false);
+  const { courseId } = useParams() as { courseId: string };
 
   useEffect(() => {
     async function fetchModuleDetails() {
@@ -58,7 +60,7 @@ export default function ModuleDetail({ moduleId }: Props) {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ courseId: moduleId }),
+          body: JSON.stringify({ courseId: courseId }),
         });
         if (!response.ok) {
           throw new Error("Failed to check enrollment");
