@@ -16,9 +16,7 @@ export default function CoursesPage() {
   const isAdmin = user?.organisation?.role === "admin";
 
   useEffect(() => {
-    // Fetch courses from API or database
     async function fetchCourses() {
-      // Replace with actual API call
       const fetchedCourses = await fetch("/api/courses", {
         credentials: "include",
       })
@@ -33,6 +31,5 @@ export default function CoursesPage() {
     fetchCourses();
   }, []);
 
-  // 3) Render the client component that will show/hide admin buttons
   return <CourseList courses={courses} isAdmin={isAdmin} />;
 }
