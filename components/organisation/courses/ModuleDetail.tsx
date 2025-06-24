@@ -35,7 +35,7 @@ interface Props {
 
 export default function ModuleDetail({ moduleId }: Props) {
   const [data, setData] = React.useState<ModuleDetailData | null>(null);
-  const [endrolled, setEnrolled] = React.useState<boolean>(false);
+  const [enrolled, setEnrolled] = React.useState<boolean>(false);
   const { courseId } = useParams() as { courseId: string };
   const [answers, setAnswers] = useState<Record<number, number | number[]>>({});
 
@@ -65,6 +65,9 @@ export default function ModuleDetail({ moduleId }: Props) {
         }
         const result = await response.json();
         setData(result);
+        if (result.module_type === "quiz" && result.quiz) {
+          getQuizResults(result.quiz.id);
+        }
       } catch (error) {
         console.error("Error fetching module details:", error);
         setData(null);
@@ -90,6 +93,26 @@ export default function ModuleDetail({ moduleId }: Props) {
         setEnrolled(false);
       }
     }
+
+    async function getQuizResults(quizId: number) {
+      try {
+        const { responseId, results } = await fetch(
+          "/api/courses/get-latest-quiz-response",
+          {
+            method: "POST",
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ quizId: quizId }),
+          }
+        ).then((r) => r.json());
+
+        if (responseId && results) {
+          setResults(results);
+        }
+      } catch (err) {
+        console.error("Could not fetch or grade quiz:", err);
+      }
+    }
     checkEnrollmentInCourse();
     fetchModuleDetails();
   }, [moduleId]);
@@ -98,7 +121,7 @@ export default function ModuleDetail({ moduleId }: Props) {
     return <p className="text-gray-600">Loading module details...</p>;
   }
 
-  if (!endrolled) {
+  if (!enrolled) {
     return (
       <p className="text-red-600">
         You must be enrolled in the course to view this module.
@@ -141,16 +164,6 @@ export default function ModuleDetail({ moduleId }: Props) {
   }
 
   const { quiz } = data;
-
-  // todo
-  // get results for quiz
-  // steps: send result to backend; get back: results
-  // then display results
-
-  // show results if already submitted
-  // steps: have to send a backend request to get results, otherwise show quiz form
-
-  // give option to retake quiz if already submitted
 
   const handleChange = (qId: number, optId: number, multiple: boolean) => {
     setAnswers((ans) => {
