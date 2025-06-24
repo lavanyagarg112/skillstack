@@ -17,9 +17,6 @@ export default function CoursesPage() {
 
   const isAdmin = user?.organisation?.role === "admin";
 
-  // for user: courses and enrolments
-  // for admin: all courses
-
   useEffect(() => {
     async function fetchAdminCourses() {
       const fetchedCourses = await fetch("/api/courses", {

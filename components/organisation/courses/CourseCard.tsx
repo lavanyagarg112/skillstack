@@ -14,15 +14,6 @@ interface Props {
   isEnrolled: boolean;
 }
 
-// todo
-// get user enrollements from backed
-// so from backend: user enrollments + other courses
-// endpoints to:
-// 1. get all courses (admin)
-// 2. get user enrollments (user)
-// 3. get other courses (user)
-// admin is not enrolled in any course
-
 export default function CourseCard({ course, isAdmin, isEnrolled }: Props) {
   const handleEnroll = async () => {
     try {
