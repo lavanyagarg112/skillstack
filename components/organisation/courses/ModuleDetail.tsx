@@ -39,6 +39,16 @@ export default function ModuleDetail({ moduleId }: Props) {
   const { courseId } = useParams() as { courseId: string };
   const [answers, setAnswers] = useState<Record<number, number | number[]>>({});
 
+  const [results, setResults] = useState<
+    | {
+        questionId: number;
+        correctOptions: { id: number; text: string }[];
+        selectedOptions: { id: number; text: string }[];
+        isCorrect: boolean;
+      }[]
+    | null
+  >(null);
+
   useEffect(() => {
     async function fetchModuleDetails() {
       try {
@@ -132,6 +142,16 @@ export default function ModuleDetail({ moduleId }: Props) {
 
   const { quiz } = data;
 
+  // todo
+  // get results for quiz
+  // steps: send result to backend; get back: results
+  // then display results
+
+  // show results if already submitted
+  // steps: have to send a backend request to get results, otherwise show quiz form
+
+  // give option to retake quiz if already submitted
+
   const handleChange = (qId: number, optId: number, multiple: boolean) => {
     setAnswers((ans) => {
       if (multiple) {
@@ -159,19 +179,59 @@ export default function ModuleDetail({ moduleId }: Props) {
       })),
     };
     try {
-      const res = await fetch("/api/courses/submit-quiz", {
+      const res = await fetch("/api/courses/submit-and-grade-quiz", {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
       if (!res.ok) throw new Error("Submit failed");
-      alert("Quiz submitted!");
+      const data = await res.json();
+      setResults(data.results);
     } catch (err) {
       console.error(err);
       alert("Failed to submit quiz.");
     }
   };
+
+  const handleRetake = () => {
+    setResults(null);
+    setAnswers({});
+  };
+
+  if (data.module_type === "quiz" && results) {
+    return (
+      <div className="space-y-6">
+        <h2 className="text-3xl font-bold">{data.title} — Results</h2>
+        {results.map((r) => (
+          <div key={r.questionId} className="p-4 border rounded space-y-2">
+            <p className="font-medium">Question {r.questionId}</p>
+            <p>
+              Your answers:&nbsp;
+              {r.selectedOptions.map((o) => o.text).join(", ")}
+            </p>
+            <p>
+              Correct:&nbsp;
+              {r.correctOptions.map((o) => o.text).join(", ")}
+            </p>
+            <p>
+              {r.isCorrect ? (
+                <span className="text-green-600">Correct</span>
+              ) : (
+                <span className="text-red-600">Incorrect</span>
+              )}
+            </p>
+          </div>
+        ))}
+        <button
+          onClick={handleRetake}
+          className="px-4 py-2 bg-yellow-500 text-white rounded"
+        >
+          Retake Quiz
+        </button>
+      </div>
+    );
+  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
