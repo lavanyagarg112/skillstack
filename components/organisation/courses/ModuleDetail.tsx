@@ -349,6 +349,10 @@ export default function ModuleDetail({ moduleId, isAdmin }: Props) {
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <h2 className="text-3xl font-bold">{data.title}</h2>
+      <p className="text-red-600">
+        Please note that if you leave this page without submitting, your answers
+        will be lost
+      </p>
       {quiz?.questions.map((q) => (
         <div key={q.id} className="space-y-2">
           <p className="font-medium">{q.question_text}</p>

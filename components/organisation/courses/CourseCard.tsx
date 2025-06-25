@@ -6,6 +6,8 @@ export interface Course {
   id: number;
   name: string;
   description?: string;
+  total_modules?: number;
+  completed_modules?: number;
 }
 
 interface Props {
@@ -61,6 +63,20 @@ export default function CourseCard({ course, isAdmin, isEnrolled }: Props) {
     <div className="bg-white border rounded-lg p-6 shadow-sm hover:shadow-md transition">
       <h2 className="text-xl font-semibold text-purple-600">{course.name}</h2>
       <p className="mt-2 text-gray-700">{course.description?.slice(0, 100)}</p>
+
+      {!isAdmin && isEnrolled && (
+        <p className="mt-3 text-sm text-gray-600">
+          Progress:{" "}
+          <span className="font-medium text-gray-800">
+            {course.completed_modules ?? 0}
+          </span>
+          /
+          <span className="font-medium text-gray-800">
+            {course.total_modules ?? 0}
+          </span>{" "}
+          modules completed.
+        </p>
+      )}
 
       <div className="mt-4 flex items-center space-x-4">
         <Link href={`/courses/${course.id}`}>
