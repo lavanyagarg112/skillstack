@@ -64,8 +64,8 @@ export default function ModuleCard({ module, isEditMode, isEnrolled }: Props) {
             <Link href={`/courses/${courseId}/modules/${module.id}`}>
               <button className="px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white rounded">
                 {moduleStatus === "completed"
-                  ? "View Completed"
-                  : moduleStatus === "in-progress"
+                  ? "View Completed Module"
+                  : moduleStatus === "in_progress"
                   ? "Continue"
                   : "View"}
               </button>
