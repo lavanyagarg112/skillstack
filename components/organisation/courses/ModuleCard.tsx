@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { useEffect } from "react";
+import { useState } from "react";
 
 export interface Module {
   id: number;
@@ -13,10 +15,38 @@ export interface Module {
 interface Props {
   module: Module;
   isEditMode: boolean;
+  isEnrolled: boolean;
 }
 
-export default function ModuleCard({ module, isEditMode }: Props) {
+export default function ModuleCard({ module, isEditMode, isEnrolled }: Props) {
   const { courseId } = useParams() as { courseId: string };
+  const [moduleStatus, setModuleStatus] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function checkModuleStatus() {
+      try {
+        const response = await fetch(`/api/courses/get-module-status`, {
+          credentials: "include",
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ moduleId: module.id }),
+        });
+        if (!response.ok) {
+          throw new Error("Failed to fetch module status");
+        }
+        const data = await response.json();
+        setModuleStatus(data.status || null);
+      } catch (error) {
+        console.error("Error fetching module status:", error);
+        setModuleStatus(null);
+      }
+    }
+    if (isEnrolled && !isEditMode) {
+      checkModuleStatus();
+    }
+  }, [module.id]);
 
   return (
     <div className="bg-white border rounded-lg p-4 shadow-sm hover:shadow-md transition">
@@ -30,11 +60,22 @@ export default function ModuleCard({ module, isEditMode }: Props) {
           </p>
         </div>
         <div className="flex items-center space-x-2">
-          <Link href={`/courses/${courseId}/modules/${module.id}`}>
+          {(isEnrolled || isEditMode) && (
+            <Link href={`/courses/${courseId}/modules/${module.id}`}>
+              <button className="px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white rounded">
+                {moduleStatus === "completed"
+                  ? "View Completed Module"
+                  : moduleStatus === "in_progress"
+                  ? "Continue"
+                  : "View"}
+              </button>
+            </Link>
+          )}
+          {!isEnrolled && !isEditMode && (
             <button className="px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white rounded">
-              Open
+              Enroll to View
             </button>
-          </Link>
+          )}
           {isEditMode && (
             <Link href={`/courses/${courseId}/modules/${module.id}/edit`}>
               <button className="px-3 py-1 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded">

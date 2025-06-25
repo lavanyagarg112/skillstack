@@ -20,7 +20,6 @@ export default function ModuleForm({ mode, courseId, moduleId }: Props) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [uploadFile, setUploadFile] = useState<File | null>(null);
-  const [deleteMode, setDeleteMode] = useState(false);
   const router = useRouter();
   const [moduleType, setModuleType] =
     useState<ModuleDetailData["module_type"]>("pdf");
@@ -126,28 +125,6 @@ export default function ModuleForm({ mode, courseId, moduleId }: Props) {
         console.error(err);
         alert("Could not create module. Please try again.");
       }
-    } else if (deleteMode) {
-      if (!confirm("Are you sure you want to delete this module?")) return;
-
-      try {
-        const response = await fetch("/api/courses/delete-module", {
-          method: "DELETE",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ moduleId }),
-        });
-
-        if (!response.ok) {
-          throw new Error("Failed to delete module");
-        }
-
-        router.push(`/courses`);
-      } catch (error) {
-        console.error("Error deleting module:", error);
-        alert("Failed to delete module. Please try again.");
-      }
     } else {
       const fd = new FormData();
       fd.append("moduleId", moduleId || "");
@@ -211,6 +188,32 @@ export default function ModuleForm({ mode, courseId, moduleId }: Props) {
         console.error(err);
         alert("Could not update module. Please try again.");
       }
+    }
+  };
+
+  const handleDelete = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!confirm("Are you sure you want to delete this module?")) return;
+
+    try {
+      const response = await fetch("/api/courses/delete-module", {
+        method: "DELETE",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ moduleId }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete module");
+      }
+
+      router.push(`/courses`);
+    } catch (error) {
+      console.error("Error deleting module:", error);
+      alert("Failed to delete module. Please try again.");
     }
   };
 
@@ -453,7 +456,7 @@ export default function ModuleForm({ mode, courseId, moduleId }: Props) {
             type="submit"
             className="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded"
             onClick={(e) => {
-              setDeleteMode(true);
+              handleDelete(e);
             }}
           >
             Delete Module
