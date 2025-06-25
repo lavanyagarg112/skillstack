@@ -14,9 +14,15 @@ interface Props {
   course: Course;
   isAdmin: boolean;
   isEnrolled: boolean;
+  isCompleted: boolean;
 }
 
-export default function CourseCard({ course, isAdmin, isEnrolled }: Props) {
+export default function CourseCard({
+  course,
+  isAdmin,
+  isEnrolled,
+  isCompleted,
+}: Props) {
   const handleEnroll = async () => {
     try {
       const response = await fetch("/api/courses/enroll-course", {
@@ -99,7 +105,7 @@ export default function CourseCard({ course, isAdmin, isEnrolled }: Props) {
         </p>
       )}
 
-      {allDone && !isAdmin && (
+      {allDone && !isAdmin && !isCompleted && (
         <button
           onClick={handleCompleteCourse}
           className="mt-4 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
@@ -114,7 +120,7 @@ export default function CourseCard({ course, isAdmin, isEnrolled }: Props) {
             View Modules
           </button>
         </Link>
-        {!isAdmin && !isEnrolled && (
+        {!isAdmin && !isEnrolled && !isCompleted && (
           <button
             className="text-purple-600 hover:underline"
             onClick={handleEnroll}
@@ -122,7 +128,7 @@ export default function CourseCard({ course, isAdmin, isEnrolled }: Props) {
             Enroll
           </button>
         )}
-        {!isAdmin && isEnrolled && (
+        {!isAdmin && isEnrolled && !isCompleted && (
           <button
             className="text-purple-600 hover:underline"
             onClick={handleUnEnroll}

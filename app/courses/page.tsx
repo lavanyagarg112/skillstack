@@ -10,6 +10,7 @@ export default function CoursesPage() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [enrolled, setEnrolled] = useState<Course[]>([]);
   const [other, setOther] = useState<Course[]>([]);
+  const [completed, setCompleted] = useState<Course[]>([]);
 
   if (!user || !user.hasCompletedOnboarding) {
     return null;
@@ -38,11 +39,13 @@ export default function CoursesPage() {
         .then((data) => {
           setEnrolled(data.enrolled || []);
           setOther(data.other || []);
+          setCompleted(data.completed || []);
         })
         .catch((err) => {
           console.error("Failed to fetch user courses:", err);
           setEnrolled([]);
           setOther([]);
+          setCompleted([]);
         });
     }
     if (isAdmin) {
@@ -53,7 +56,14 @@ export default function CoursesPage() {
   }, [isAdmin]);
 
   if (isAdmin) {
-    return <CourseList courses={courses} isAdmin={true} isEnrolled={true} />;
+    return (
+      <CourseList
+        courses={courses}
+        isAdmin={true}
+        isEnrolled={true}
+        isCompleted={true}
+      />
+    );
   }
 
   return (
@@ -63,7 +73,12 @@ export default function CoursesPage() {
           My Courses
         </h2>
         {enrolled.length > 0 ? (
-          <CourseList courses={enrolled} isAdmin={false} isEnrolled={true} />
+          <CourseList
+            courses={enrolled}
+            isAdmin={false}
+            isEnrolled={true}
+            isCompleted={false}
+          />
         ) : (
           <p className="text-gray-600">
             You’re not enrolled in any courses yet.
@@ -76,9 +91,29 @@ export default function CoursesPage() {
           Available Courses
         </h2>
         {other.length > 0 ? (
-          <CourseList courses={other} isAdmin={false} isEnrolled={false} />
+          <CourseList
+            courses={other}
+            isAdmin={false}
+            isEnrolled={false}
+            isCompleted={false}
+          />
         ) : (
           <p className="text-gray-600">No other courses available.</p>
+        )}
+      </section>
+      <section>
+        <h2 className="text-2xl font-semibold text-purple-600 mb-4">
+          Completed Courses
+        </h2>
+        {completed.length > 0 ? (
+          <CourseList
+            courses={completed}
+            isAdmin={false}
+            isEnrolled={false}
+            isCompleted={true}
+          />
+        ) : (
+          <p className="text-gray-600">No completed courses.</p>
         )}
       </section>
     </div>

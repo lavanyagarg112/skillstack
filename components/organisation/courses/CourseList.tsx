@@ -7,9 +7,15 @@ interface Props {
   courses: Course[];
   isAdmin: boolean;
   isEnrolled: boolean;
+  isCompleted: boolean;
 }
 
-export default function CourseList({ courses, isAdmin, isEnrolled }: Props) {
+export default function CourseList({
+  courses,
+  isAdmin,
+  isEnrolled,
+  isCompleted,
+}: Props) {
   return (
     <div className="space-y-6">
       {isAdmin && (
@@ -29,6 +35,7 @@ export default function CourseList({ courses, isAdmin, isEnrolled }: Props) {
             course={c}
             isAdmin={isAdmin}
             isEnrolled={isEnrolled}
+            isCompleted={isCompleted}
           />
         ))}
       </div>
