@@ -31,9 +31,10 @@ export interface ModuleDetailData {
 
 interface Props {
   moduleId: string;
+  isAdmin: boolean;
 }
 
-export default function ModuleDetail({ moduleId }: Props) {
+export default function ModuleDetail({ moduleId, isAdmin }: Props) {
   const [data, setData] = React.useState<ModuleDetailData | null>(null);
   const [enrolled, setEnrolled] = React.useState<boolean>(false);
   const { courseId } = useParams() as { courseId: string };
@@ -89,7 +90,7 @@ export default function ModuleDetail({ moduleId }: Props) {
         }
         const data = await response.json();
         setEnrolled(data.enrolled);
-        if (data.enrolled) {
+        if (data.enrolled && !isAdmin) {
           checkModuleStatus();
         }
       } catch (error) {
@@ -263,6 +264,25 @@ export default function ModuleDetail({ moduleId }: Props) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (isAdmin) {
+      return;
+    }
+
+    const missing = quiz!.questions
+      .filter((q) => q.question_type === "multiple_choice")
+      .filter((q) => {
+        const sel = answers[q.id];
+        return !Array.isArray(sel) || sel.length === 0;
+      });
+
+    if (missing.length > 0) {
+      alert(
+        "Please select at least one option for:\n" +
+          missing.map((q) => `• ${q.question_text}`).join("\n")
+      );
+      return;
+    }
+
     const payload = {
       quizId: quiz?.id,
       answers: Object.entries(answers).map(([qId, sel]) => ({
@@ -349,6 +369,7 @@ export default function ModuleDetail({ moduleId }: Props) {
                 }
                 className="border-gray-300"
                 required={q.question_type === "true_false"}
+                disabled={isAdmin}
               />
               <span>{opt.option_text}</span>
             </label>
