@@ -40,6 +40,7 @@ export default function ModuleDetail({ moduleId, isAdmin }: Props) {
   const { courseId } = useParams() as { courseId: string };
   const [answers, setAnswers] = useState<Record<number, number | number[]>>({});
   const [moduleStatus, setModuleStatus] = useState<string | null>(null);
+  const [courseCompleted, setCourseCompleted] = useState<boolean>(false);
 
   const [results, setResults] = useState<
     | {
@@ -114,9 +115,11 @@ export default function ModuleDetail({ moduleId, isAdmin }: Props) {
         }
         const data = await response.json();
         setModuleStatus(data.status || null);
+        setCourseCompleted(data.isCourseCompleted || false);
       } catch (error) {
         console.error("Error fetching module status:", error);
         setModuleStatus(null);
+        setCourseCompleted(false);
       }
     }
 
@@ -173,7 +176,7 @@ export default function ModuleDetail({ moduleId, isAdmin }: Props) {
     return (
       <div className="space-y-4">
         <div className="flex gap-4 mb-6">
-          {moduleStatus === "not_started" && (
+          {moduleStatus === "not_started" && !courseCompleted && (
             <button
               onClick={async () => {
                 await fetch("/api/courses/mark-module-started", {
@@ -191,7 +194,7 @@ export default function ModuleDetail({ moduleId, isAdmin }: Props) {
             </button>
           )}
 
-          {moduleStatus === "in_progress" && (
+          {moduleStatus === "in_progress" && !courseCompleted && (
             <button
               onClick={async () => {
                 await fetch("/api/courses/mark-module-completed", {
@@ -209,7 +212,7 @@ export default function ModuleDetail({ moduleId, isAdmin }: Props) {
             </button>
           )}
 
-          {moduleStatus === "completed" && (
+          {moduleStatus === "completed" && !courseCompleted && (
             <button
               onClick={async () => {
                 await fetch("/api/courses/mark-module-started", {
@@ -264,7 +267,7 @@ export default function ModuleDetail({ moduleId, isAdmin }: Props) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (isAdmin) {
+    if (isAdmin || courseCompleted) {
       return;
     }
 
@@ -336,12 +339,14 @@ export default function ModuleDetail({ moduleId, isAdmin }: Props) {
             </p>
           </div>
         ))}
-        <button
-          onClick={handleRetake}
-          className="px-4 py-2 bg-yellow-500 text-white rounded"
-        >
-          Retake Quiz
-        </button>
+        {!courseCompleted && (
+          <button
+            onClick={handleRetake}
+            className="px-4 py-2 bg-yellow-500 text-white rounded"
+          >
+            Retake Quiz
+          </button>
+        )}
       </div>
     );
   }
@@ -349,10 +354,12 @@ export default function ModuleDetail({ moduleId, isAdmin }: Props) {
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <h2 className="text-3xl font-bold">{data.title}</h2>
-      <p className="text-red-600">
-        Please note that if you leave this page without submitting, your answers
-        will be lost
-      </p>
+      {!courseCompleted && (
+        <p className="text-red-600">
+          Please note that if you leave this page without submitting, your
+          answers will be lost
+        </p>
+      )}
       {quiz?.questions.map((q) => (
         <div key={q.id} className="space-y-2">
           <p className="font-medium">{q.question_text}</p>
@@ -373,7 +380,7 @@ export default function ModuleDetail({ moduleId, isAdmin }: Props) {
                 }
                 className="border-gray-300"
                 required={q.question_type === "true_false"}
-                disabled={isAdmin}
+                disabled={isAdmin || courseCompleted}
               />
               <span>{opt.option_text}</span>
             </label>
