@@ -65,6 +65,27 @@ export default function CourseCard({
     }
   };
 
+  const markNotCompleted = async () => {
+    try {
+      const response = await fetch("/api/courses/uncomplete-course", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ courseId: course.id }),
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to unenroll from course");
+      }
+
+      window.location.reload();
+    } catch (error) {
+      console.error("Error unenrolling from course:", error);
+    }
+  };
+
   const handleCompleteCourse = async () => {
     try {
       const res = await fetch("/api/courses/complete-course", {
@@ -134,6 +155,22 @@ export default function CourseCard({
             onClick={handleUnEnroll}
           >
             UnEnroll
+          </button>
+        )}
+        {!isAdmin && isCompleted && !allDone && (
+          <button
+            className="text-red-600 hover:underline"
+            onClick={markNotCompleted}
+          >
+            New modules added, click to continue Course
+          </button>
+        )}
+        {!isAdmin && isCompleted && allDone && (
+          <button
+            className="text-red-600 hover:underline"
+            onClick={markNotCompleted}
+          >
+            Mark as Not Completed
           </button>
         )}
         {isAdmin && (
