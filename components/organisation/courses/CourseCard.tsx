@@ -59,6 +59,27 @@ export default function CourseCard({ course, isAdmin, isEnrolled }: Props) {
     }
   };
 
+  const handleCompleteCourse = async () => {
+    try {
+      const res = await fetch("/api/courses/complete-course", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ courseId: course.id }),
+      });
+      if (!res.ok) throw new Error("Failed to complete course");
+      window.location.reload();
+    } catch (err) {
+      console.error(err);
+      alert("Could not mark course complete");
+    }
+  };
+
+  const allDone =
+    course.total_modules &&
+    course.completed_modules === course.total_modules &&
+    course.total_modules > 0;
+
   return (
     <div className="bg-white border rounded-lg p-6 shadow-sm hover:shadow-md transition">
       <h2 className="text-xl font-semibold text-purple-600">{course.name}</h2>
@@ -76,6 +97,15 @@ export default function CourseCard({ course, isAdmin, isEnrolled }: Props) {
           </span>{" "}
           modules completed.
         </p>
+      )}
+
+      {allDone && !isAdmin && (
+        <button
+          onClick={handleCompleteCourse}
+          className="mt-4 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+        >
+          Mark Course as Completed
+        </button>
       )}
 
       <div className="mt-4 flex items-center space-x-4">
