@@ -52,7 +52,6 @@ export default function ModuleList({ courseId, isEditMode }: Props) {
         }
       } catch (error) {
         console.error("Error checking enrollment:", error);
-        alert("Failed to check enrollment. Please try again later.");
         return;
       }
     }

@@ -31,13 +31,16 @@ export interface ModuleDetailData {
 
 interface Props {
   moduleId: string;
+  isAdmin: boolean;
 }
 
-export default function ModuleDetail({ moduleId }: Props) {
+export default function ModuleDetail({ moduleId, isAdmin }: Props) {
   const [data, setData] = React.useState<ModuleDetailData | null>(null);
   const [enrolled, setEnrolled] = React.useState<boolean>(false);
   const { courseId } = useParams() as { courseId: string };
   const [answers, setAnswers] = useState<Record<number, number | number[]>>({});
+  const [moduleStatus, setModuleStatus] = useState<string | null>(null);
+  const [courseCompleted, setCourseCompleted] = useState<boolean>(false);
 
   const [results, setResults] = useState<
     | {
@@ -88,9 +91,35 @@ export default function ModuleDetail({ moduleId }: Props) {
         }
         const data = await response.json();
         setEnrolled(data.enrolled);
+        if (data.enrolled && !isAdmin) {
+          checkModuleStatus();
+        }
       } catch (error) {
         console.error("Error checking enrollment:", error);
         setEnrolled(false);
+      }
+    }
+
+    async function checkModuleStatus() {
+      try {
+        const response = await fetch(`/api/courses/get-module-status`, {
+          credentials: "include",
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ moduleId: moduleId }),
+        });
+        if (!response.ok) {
+          throw new Error("Failed to fetch module status");
+        }
+        const data = await response.json();
+        setModuleStatus(data.status || null);
+        setCourseCompleted(data.isCourseCompleted || false);
+      } catch (error) {
+        console.error("Error fetching module status:", error);
+        setModuleStatus(null);
+        setCourseCompleted(false);
       }
     }
 
@@ -145,7 +174,62 @@ export default function ModuleDetail({ moduleId }: Props) {
   if (data.module_type !== "quiz") {
     const finalUrl = `http://localhost:4000${data.file_url}`;
     return (
-      <div className="space-y-6">
+      <div className="space-y-4">
+        <div className="flex gap-4 mb-6">
+          {moduleStatus === "not_started" && !courseCompleted && (
+            <button
+              onClick={async () => {
+                await fetch("/api/courses/mark-module-started", {
+                  method: "POST",
+                  credentials: "include",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ moduleId: data.id }),
+                });
+                alert("Module started!");
+                setModuleStatus("in_progress");
+              }}
+              className="px-4 py-2 bg-blue-600 text-white rounded"
+            >
+              Start Module
+            </button>
+          )}
+
+          {moduleStatus === "in_progress" && !courseCompleted && (
+            <button
+              onClick={async () => {
+                await fetch("/api/courses/mark-module-completed", {
+                  method: "POST",
+                  credentials: "include",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ moduleId: data.id }),
+                });
+                alert("Module completed!");
+                setModuleStatus("completed");
+              }}
+              className="px-4 py-2 bg-red-600 text-white rounded"
+            >
+              Mark as Completed
+            </button>
+          )}
+
+          {moduleStatus === "completed" && !courseCompleted && (
+            <button
+              onClick={async () => {
+                await fetch("/api/courses/mark-module-started", {
+                  method: "POST",
+                  credentials: "include",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ moduleId: data.id }),
+                });
+                alert("Module restarted!");
+                setModuleStatus("in_progress");
+              }}
+              className="px-4 py-2 bg-green-600 text-white rounded"
+            >
+              Module has been completed. Reset Module Progress
+            </button>
+          )}
+        </div>
         <h2 className="text-3xl font-bold text-purple-600">{data.title}</h2>
         <p>{data.description}</p>
 
@@ -182,6 +266,25 @@ export default function ModuleDetail({ moduleId }: Props) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (isAdmin || courseCompleted) {
+      return;
+    }
+
+    const missing = quiz!.questions
+      .filter((q) => q.question_type === "multiple_choice")
+      .filter((q) => {
+        const sel = answers[q.id];
+        return !Array.isArray(sel) || sel.length === 0;
+      });
+
+    if (missing.length > 0) {
+      alert(
+        "Please select at least one option for:\n" +
+          missing.map((q) => `• ${q.question_text}`).join("\n")
+      );
+      return;
+    }
 
     const payload = {
       quizId: quiz?.id,
@@ -236,12 +339,14 @@ export default function ModuleDetail({ moduleId }: Props) {
             </p>
           </div>
         ))}
-        <button
-          onClick={handleRetake}
-          className="px-4 py-2 bg-yellow-500 text-white rounded"
-        >
-          Retake Quiz
-        </button>
+        {!courseCompleted && (
+          <button
+            onClick={handleRetake}
+            className="px-4 py-2 bg-yellow-500 text-white rounded"
+          >
+            Retake Quiz
+          </button>
+        )}
       </div>
     );
   }
@@ -249,6 +354,12 @@ export default function ModuleDetail({ moduleId }: Props) {
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <h2 className="text-3xl font-bold">{data.title}</h2>
+      {!courseCompleted && (
+        <p className="text-red-600">
+          Please note that if you leave this page without submitting, your
+          answers will be lost
+        </p>
+      )}
       {quiz?.questions.map((q) => (
         <div key={q.id} className="space-y-2">
           <p className="font-medium">{q.question_text}</p>
@@ -269,6 +380,7 @@ export default function ModuleDetail({ moduleId }: Props) {
                 }
                 className="border-gray-300"
                 required={q.question_type === "true_false"}
+                disabled={isAdmin || courseCompleted}
               />
               <span>{opt.option_text}</span>
             </label>

@@ -19,7 +19,6 @@ interface Props {
 export default function CourseForm({ mode, courseId }: Props) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [deleteMode, setDeleteMode] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -78,38 +77,6 @@ export default function CourseForm({ mode, courseId }: Props) {
         alert("Failed to create course. Please try again.");
         return;
       }
-    } else if (deleteMode) {
-      const confirmed = window.confirm(
-        "Are you sure you want to delete this course? This action cannot be undone."
-      );
-      if (!confirmed) {
-        setDeleteMode(false);
-        return;
-      }
-      if (!courseId) {
-        alert("Please provide a course name to delete.");
-        return;
-      }
-      try {
-        const res = await fetch(`/api/courses`, {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-          body: JSON.stringify({ courseId: courseId }),
-        });
-        if (!res.ok) {
-          throw new Error("Failed to delete course");
-        }
-        const data = await res.json();
-        console.log("Course deleted:", data);
-        router.push("/courses");
-      } catch (error) {
-        console.error("Error deleting course:", error);
-        alert("Failed to delete course. Please try again.");
-        return;
-      }
     } else {
       try {
         const res = await fetch("/api/courses", {
@@ -131,6 +98,41 @@ export default function CourseForm({ mode, courseId }: Props) {
         alert("Failed to update course. Please try again.");
         return;
       }
+    }
+  };
+
+  const handleDelete = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this course? This action cannot be undone."
+    );
+    if (!confirmed) {
+      return;
+    }
+    if (!courseId) {
+      alert("Please provide a course name to delete.");
+      return;
+    }
+    try {
+      const res = await fetch(`/api/courses`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({ courseId: courseId }),
+      });
+      if (!res.ok) {
+        throw new Error("Failed to delete course");
+      }
+      const data = await res.json();
+      console.log("Course deleted:", data);
+      router.push("/courses");
+    } catch (error) {
+      console.error("Error deleting course:", error);
+      alert("Failed to delete course. Please try again.");
+      return;
     }
   };
 
@@ -165,11 +167,8 @@ export default function CourseForm({ mode, courseId }: Props) {
         </button>
         {mode === "edit" && (
           <button
-            type="submit"
             className="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded"
-            onClick={(e) => {
-              setDeleteMode(true);
-            }}
+            onClick={(e) => handleDelete(e)}
           >
             Delete Course
           </button>
