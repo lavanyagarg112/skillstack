@@ -7,6 +7,7 @@ import { useState } from "react";
 export interface QuizOption {
   id: number;
   option_text: string;
+  is_correct?: boolean;
 }
 
 export interface QuizQuestion {
@@ -20,7 +21,7 @@ export interface ModuleDetailData {
   id: number;
   title: string;
   module_type: "video" | "pdf" | "slide" | "quiz" | string;
-  description?: string;
+  description: string;
   file_url?: string;
   quiz?: {
     id: number;
