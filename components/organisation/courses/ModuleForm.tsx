@@ -4,6 +4,16 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { ModuleDetailData } from "./ModuleDetail";
+import CreatableSelect from "react-select/creatable";
+
+interface Tag {
+  id: number;
+  name: string;
+}
+interface Option {
+  value: number | string;
+  label: string;
+}
 interface Props {
   mode: "create" | "edit";
   courseId: string;
@@ -25,37 +35,48 @@ export default function ModuleForm({ mode, courseId, moduleId }: Props) {
     useState<ModuleDetailData["module_type"]>("pdf");
 
   const [questions, setQuestions] = useState<Question[]>([]);
-
+  const [allTags, setAllTags] = useState<Tag[]>([]);
+  const [options, setOptions] = useState<Option[]>([]);
+  const [selected, setSelected] = useState<Option[]>([]);
   useEffect(() => {
-    async function fetchModuleDetails() {
-      try {
-        const response = await fetch(`/api/courses/get-module`, {
-          credentials: "include",
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ moduleId }),
-        });
-        if (!response.ok) {
-          throw new Error("Failed to fetch module details");
-        }
-        const result = await response.json();
-        setName(result.title);
-        setDescription(result.description);
-        setModuleType(result.module_type);
-      } catch (error) {
-        console.error("Error fetching module details:", error);
-        setName("");
-        setDescription("");
-        setModuleType("pdf");
-      }
-    }
-
+    fetch("/api/courses/tags", { credentials: "include" })
+      .then((r) => r.json())
+      .then((tags: Tag[]) => {
+        setAllTags(tags);
+        setOptions(tags.map((t) => ({ value: t.id, label: t.name })));
+      })
+      .catch(console.error);
     if (mode === "edit" && moduleId) {
-      fetchModuleDetails();
+      fetch("/api/courses/get-module", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ moduleId }),
+      })
+        .then((r) => {
+          if (!r.ok) throw new Error();
+          return r.json();
+        })
+        .then((mod: ModuleDetailData & { tags?: Tag[] }) => {
+          setName(mod.title);
+          setDescription(mod.description);
+          setModuleType(mod.module_type);
+          setSelected(
+            (mod.tags || []).map((t) => ({ value: t.id, label: t.name }))
+          );
+        })
+        .catch(() => {
+          alert("Failed to load module");
+          router.push(`/courses/${courseId}`);
+        });
     }
-  }, [moduleId]);
+  }, [mode, moduleId, courseId, router]);
+
+  const handleCreate = (inputValue: string) => {
+    const newOpt = { value: inputValue, label: inputValue };
+    setOptions((o) => [...o, newOpt]);
+    setSelected((s) => [...s, newOpt]);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -109,6 +130,12 @@ export default function ModuleForm({ mode, courseId, moduleId }: Props) {
       } else if (uploadFile) {
         fd.append("file", uploadFile);
       }
+      const tagsPayload = selected.map((opt) => ({
+        id: typeof opt.value === "number" ? opt.value : undefined,
+        name: typeof opt.value === "string" ? opt.value : undefined,
+        isNew: typeof opt.value === "string",
+      }));
+      fd.append("moduleTags", JSON.stringify(tagsPayload));
       try {
         const res = await fetch("/api/courses/add-module", {
           method: "POST",
@@ -172,6 +199,13 @@ export default function ModuleForm({ mode, courseId, moduleId }: Props) {
         fd.append("type", moduleType);
         fd.append("file", uploadFile);
       }
+      const tagsPayload = selected.map((opt) => ({
+        id: typeof opt.value === "number" ? opt.value : undefined,
+        name: typeof opt.value === "string" ? opt.value : undefined,
+        isNew: typeof opt.value === "string",
+      }));
+      fd.append("moduleTags", JSON.stringify(tagsPayload));
+      fd.append("updateTags", "true");
       try {
         const res = await fetch("/api/courses/update-module", {
           method: "PUT",
@@ -437,6 +471,16 @@ export default function ModuleForm({ mode, courseId, moduleId }: Props) {
           />
         </div>
       )}
+      <div>
+        <label className="block text-gray-700 mb-1">Tags</label>
+        <CreatableSelect
+          isMulti
+          options={options}
+          value={selected}
+          onChange={(opts) => setSelected(opts as Option[])}
+          onCreateOption={handleCreate}
+        />
+      </div>
       <div className="space-x-4">
         {mode === "edit" && (
           <p className="mb-4 text-sm text-red-500">
