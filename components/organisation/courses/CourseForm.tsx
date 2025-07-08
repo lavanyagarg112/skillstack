@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import CreatableSelect from "react-select/creatable";
+import Select from "react-select";
 
 export interface Course {
   id: number;
@@ -16,7 +16,7 @@ interface Tag {
   name: string;
 }
 interface Option {
-  value: number | string;
+  value: number;
   label: string;
 }
 
@@ -68,12 +68,6 @@ export default function CourseForm({ mode, courseId }: Props) {
         });
     }
   }, [mode, courseId, router]);
-
-  const handleCreate = (inputValue: string) => {
-    const newOpt = { value: inputValue, label: inputValue };
-    setOptions((o) => [...o, newOpt]);
-    setSelected((s) => [...s, newOpt]);
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -143,12 +137,11 @@ export default function CourseForm({ mode, courseId }: Props) {
 
       <div>
         <label className="block text-gray-700 mb-1">Tags</label>
-        <CreatableSelect
+        <Select
           isMulti
           options={options}
           value={selected}
           onChange={(opts) => setSelected(opts as Option[])}
-          onCreateOption={handleCreate}
         />
       </div>
 
