@@ -5,11 +5,17 @@ import { useParams } from "next/navigation";
 import { useEffect } from "react";
 import { useState } from "react";
 
+export interface Tag {
+  id: number;
+  name: string;
+}
+
 export interface Module {
   id: number;
   title: string;
   module_type: string;
   position: number;
+  tags?: Tag[];
 }
 
 interface Props {
@@ -58,6 +64,18 @@ export default function ModuleCard({ module, isEditMode, isEnrolled }: Props) {
           <p className="text-sm text-gray-500 capitalize">
             {module.module_type}
           </p>
+          {!!module.tags?.length && (
+            <div className="mt-2 flex flex-wrap gap-1">
+              {module.tags.map((t) => (
+                <span
+                  key={t.id}
+                  className="px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded-full"
+                >
+                  {t.name}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
         <div className="flex items-center space-x-2">
           {(isEnrolled || isEditMode) && (

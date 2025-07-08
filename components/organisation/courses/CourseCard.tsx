@@ -2,12 +2,18 @@
 
 import Link from "next/link";
 
+export interface Tag {
+  id: number;
+  name: string;
+}
+
 export interface Course {
   id: number;
   name: string;
   description?: string;
   total_modules?: number;
   completed_modules?: number;
+  tags?: Tag[];
 }
 
 interface Props {
@@ -111,6 +117,19 @@ export default function CourseCard({
     <div className="bg-white border rounded-lg p-6 shadow-sm hover:shadow-md transition">
       <h2 className="text-xl font-semibold text-purple-600">{course.name}</h2>
       <p className="mt-2 text-gray-700">{course.description?.slice(0, 100)}</p>
+
+      {course.tags && course.tags.length > 0 && (
+        <div className="mt-3 flex flex-wrap gap-2">
+          {course.tags.map((t) => (
+            <span
+              key={t.id}
+              className="px-2 py-1 bg-purple-100 text-purple-800 text-xs font-medium rounded-full"
+            >
+              {t.name}
+            </span>
+          ))}
+        </div>
+      )}
 
       {!isAdmin && isEnrolled && (
         <p className="mt-3 text-sm text-gray-600">

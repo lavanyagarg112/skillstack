@@ -1,14 +1,23 @@
 // components/organisation/courses/CourseForm.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import Select from "react-select";
 
 export interface Course {
   id: number;
   name: string;
   description?: string;
+  tags?: { id: number; name: string }[];
+}
+interface Tag {
+  id: number;
+  name: string;
+}
+interface Option {
+  value: number;
+  label: string;
 }
 
 interface Props {
@@ -19,121 +28,88 @@ interface Props {
 export default function CourseForm({ mode, courseId }: Props) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [allTags, setAllTags] = useState<Tag[]>([]);
+  const [options, setOptions] = useState<Option[]>([]);
+  const [selected, setSelected] = useState<Option[]>([]);
   const router = useRouter();
 
   useEffect(() => {
-    async function fetchCourse() {
-      const response = await fetch(
-        `http://localhost:4000/api/courses/get-course`,
-        {
-          credentials: "include",
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ courseId }),
-        }
-      ).then((res) => {
-        if (!res.ok) {
-          throw new Error("Failed to fetch course");
-        }
-        return res.json();
-      });
-      setName(response.name);
-      setDescription(response.description || "");
-    }
+    fetch("/api/courses/tags", { credentials: "include" })
+      .then((r) => r.json())
+      .then((tags: Tag[]) => {
+        setAllTags(tags);
+        setOptions(tags.map((t) => ({ value: t.id, label: t.name })));
+      })
+      .catch(console.error);
+
     if (mode === "edit" && courseId) {
-      // Fetch course details if in edit mode
-      fetchCourse().catch((error) => {
-        console.error("Error fetching course:", error);
-        alert("Failed to load course data. Please try again.");
-        router.push("/courses");
-      });
+      fetch("/api/courses/get-course", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ courseId }),
+      })
+        .then((r) => {
+          if (!r.ok) throw new Error();
+          return r.json();
+        })
+        .then((course: Course) => {
+          setName(course.name);
+          setDescription(course.description || "");
+          const pre = (course.tags || []).map((t) => ({
+            value: t.id,
+            label: t.name,
+          }));
+          setSelected(pre);
+        })
+        .catch((_) => {
+          alert("Failed to load course");
+          router.push("/courses");
+        });
     }
-  }, []);
+  }, [mode, courseId, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const payload = { courseName: name, description };
+    const tags = selected.map((o) => o.value);
+    const payload = {
+      courseName: name,
+      description,
+      tags,
+      updateTags: mode === "edit",
+    };
 
-    if (mode === "create") {
-      try {
-        const res = await fetch("/api/courses", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-          body: JSON.stringify(payload),
-        });
-        if (!res.ok) {
-          throw new Error("Failed to create course");
-        }
-        const data = await res.json();
-        console.log("Course created:", data);
-        router.push("/courses");
-      } catch (error) {
-        console.error("Error creating course:", error);
-        alert("Failed to create course. Please try again.");
-        return;
-      }
-    } else {
-      try {
-        const res = await fetch("/api/courses", {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-          body: JSON.stringify({ courseId: courseId, ...payload }),
-        });
-        if (!res.ok) {
-          throw new Error("Failed to update course");
-        }
-        const data = await res.json();
-        console.log("Course updated:", data);
-        router.push("/courses");
-      } catch (error) {
-        console.error("Error creating course:", error);
-        alert("Failed to update course. Please try again.");
-        return;
-      }
+    const url = "/api/courses";
+    const method = mode === "create" ? "POST" : "PUT";
+    const body = mode === "create" ? payload : { courseId, ...payload };
+
+    const res = await fetch(url, {
+      method,
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) {
+      alert(`${mode === "create" ? "Create" : "Update"} failed`);
+      return;
     }
+    router.push("/courses");
   };
 
-  const handleDelete = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    const confirmed = window.confirm(
-      "Are you sure you want to delete this course? This action cannot be undone."
-    );
-    if (!confirmed) {
+  const handleDelete = async () => {
+    if (!confirm("Are you sure?")) return;
+    if (!courseId) return;
+    const res = await fetch("/api/courses", {
+      method: "DELETE",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ courseId }),
+    });
+    if (!res.ok) {
+      alert("Delete failed");
       return;
     }
-    if (!courseId) {
-      alert("Please provide a course name to delete.");
-      return;
-    }
-    try {
-      const res = await fetch(`/api/courses`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify({ courseId: courseId }),
-      });
-      if (!res.ok) {
-        throw new Error("Failed to delete course");
-      }
-      const data = await res.json();
-      console.log("Course deleted:", data);
-      router.push("/courses");
-    } catch (error) {
-      console.error("Error deleting course:", error);
-      alert("Failed to delete course. Please try again.");
-      return;
-    }
+    router.push("/courses");
   };
 
   return (
@@ -154,10 +130,21 @@ export default function CourseForm({ mode, courseId }: Props) {
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          className="w-full mt-1 p-2 border rounded"
           rows={4}
+          className="w-full mt-1 p-2 border rounded"
         />
       </div>
+
+      <div>
+        <label className="block text-gray-700 mb-1">Tags</label>
+        <Select
+          isMulti
+          options={options}
+          value={selected}
+          onChange={(opts) => setSelected(opts as Option[])}
+        />
+      </div>
+
       <div className="space-x-4">
         <button
           type="submit"
@@ -167,8 +154,9 @@ export default function CourseForm({ mode, courseId }: Props) {
         </button>
         {mode === "edit" && (
           <button
+            type="button"
             className="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded"
-            onClick={(e) => handleDelete(e)}
+            onClick={handleDelete}
           >
             Delete Course
           </button>
