@@ -4,14 +4,14 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { ModuleDetailData } from "./ModuleDetail";
-import CreatableSelect from "react-select/creatable";
+import Select from "react-select";
 
 interface Tag {
   id: number;
   name: string;
 }
 interface Option {
-  value: number | string;
+  value: number;
   label: string;
 }
 interface Props {
@@ -71,12 +71,6 @@ export default function ModuleForm({ mode, courseId, moduleId }: Props) {
         });
     }
   }, [mode, moduleId, courseId, router]);
-
-  const handleCreate = (inputValue: string) => {
-    const newOpt = { value: inputValue, label: inputValue };
-    setOptions((o) => [...o, newOpt]);
-    setSelected((s) => [...s, newOpt]);
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -473,12 +467,11 @@ export default function ModuleForm({ mode, courseId, moduleId }: Props) {
       )}
       <div>
         <label className="block text-gray-700 mb-1">Tags</label>
-        <CreatableSelect
+        <Select
           isMulti
           options={options}
           value={selected}
           onChange={(opts) => setSelected(opts as Option[])}
-          onCreateOption={handleCreate}
         />
       </div>
       <div className="space-x-4">

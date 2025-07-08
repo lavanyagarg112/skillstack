@@ -3,7 +3,6 @@
 import BasicReport from "@/components/reports/BasicReport";
 import { useAuth } from "@/context/AuthContext";
 import AdminBasicReport from "@/components/reports/AdminBasicReport";
-import EmployeeProgressReport from "@/components/reports/EmployeeProgressReport";
 
 export default function ReportsPage() {
   const { user } = useAuth();
