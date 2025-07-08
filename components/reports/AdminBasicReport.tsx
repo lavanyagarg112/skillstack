@@ -15,20 +15,45 @@ interface CourseSummary {
   others: number;
 }
 
-interface EmployeeSummary {
+interface CourseDone {
+  id: number;
+  name: string;
+  completed_at: string;
+}
+
+interface QuizResult {
+  quiz_id: number;
+  title: string;
+  correct: number;
+  total: number;
+  score_pct: number;
+  taken_at: string;
+}
+
+interface TagPerf {
+  tag_name: string;
+  correct: number;
+  total: number;
+  pct: number;
+}
+
+interface EmployeeProgress {
   id: number;
   firstname: string;
   lastname: string;
-  courses_enrolled: number;
-  courses_completed: number;
-  modules_completed: number;
+
+  coursesDone: CourseDone[];
+  modulesDone: number;
+  quizResults: QuizResult[];
+  strengths: TagPerf[];
+  weaknesses: TagPerf[];
 }
 
 interface OverviewData {
   courses: CourseSummary[];
   employees: {
     total: number;
-    list: EmployeeSummary[];
+    list: EmployeeProgress[];
   };
 }
 
@@ -43,9 +68,7 @@ export default function AdminBasicReport() {
         if (!res.ok) throw new Error(`Status ${res.status}`);
         return res.json();
       })
-      .then((json: OverviewData) => {
-        setData(json);
-      })
+      .then((json: OverviewData) => setData(json))
       .catch((err) => {
         console.error(err);
         setError("Failed to load overview report.");
@@ -58,7 +81,7 @@ export default function AdminBasicReport() {
   if (!data) return null;
 
   return (
-    <div className="space-y-8 p-6">
+    <div className="space-y-12 p-6">
       <h1 className="text-3xl font-bold">Admin Overview</h1>
 
       <section>
@@ -93,33 +116,104 @@ export default function AdminBasicReport() {
         </table>
       </section>
 
-      <section>
-        <h2 className="text-2xl font-semibold mb-2">Employees Overview</h2>
-        <p className="mb-4">
-          Total non-admin employees: <strong>{data.employees.total}</strong>
-        </p>
-        <table className="w-full table-auto border-collapse">
-          <thead>
-            <tr>
-              <th className="border px-2 py-1">Employee</th>
-              <th className="border px-2 py-1">Courses Enrolled</th>
-              <th className="border px-2 py-1">Courses Completed</th>
-              <th className="border px-2 py-1">Modules Completed</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.employees.list.map((u) => (
-              <tr key={u.id}>
-                <td className="border px-2 py-1">
-                  {u.firstname} {u.lastname}
-                </td>
-                <td className="border px-2 py-1">{u.courses_enrolled}</td>
-                <td className="border px-2 py-1">{u.courses_completed}</td>
-                <td className="border px-2 py-1">{u.modules_completed}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <section className="space-y-6">
+        <h2 className="text-2xl font-semibold">
+          Employees Progress ({data.employees.total})
+        </h2>
+
+        {data.employees.list.map((emp) => (
+          <details
+            key={emp.id}
+            className="border rounded-lg p-4 bg-white shadow-sm"
+          >
+            <summary className="text-lg font-medium cursor-pointer">
+              {emp.firstname} {emp.lastname}
+            </summary>
+
+            <div className="mt-4 space-y-4">
+              <div>
+                <h3 className="font-semibold">Courses Completed</h3>
+                {emp.coursesDone.length ? (
+                  <ul className="list-disc list-inside ml-4">
+                    {emp.coursesDone.map((c) => (
+                      <li key={c.id}>
+                        {c.name} —{" "}
+                        {new Date(c.completed_at).toLocaleDateString()}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="ml-4">None yet</p>
+                )}
+              </div>
+
+              <div>
+                <h3 className="font-semibold">Modules Completed</h3>
+                <p className="ml-4">{emp.modulesDone}</p>
+              </div>
+
+              <div>
+                <h3 className="font-semibold">Quiz Results</h3>
+                {emp.quizResults.length ? (
+                  <table className="w-full table-auto border-collapse">
+                    <thead>
+                      <tr>
+                        <th className="border px-2 py-1 text-left">Quiz</th>
+                        <th className="border px-2 py-1">Score</th>
+                        <th className="border px-2 py-1">Date</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {emp.quizResults.map((q) => (
+                        <tr key={q.quiz_id}>
+                          <td className="border px-2 py-1">{q.title}</td>
+                          <td className="border px-2 py-1">
+                            {q.correct}/{q.total} ({q.score_pct}%)
+                          </td>
+                          <td className="border px-2 py-1">
+                            {new Date(q.taken_at).toLocaleDateString()}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                ) : (
+                  <p className="ml-4">No quizzes taken</p>
+                )}
+              </div>
+
+              <div>
+                <h3 className="font-semibold">Strengths</h3>
+                {emp.strengths.length ? (
+                  <ul className="list-disc list-inside ml-4">
+                    {emp.strengths.map((t) => (
+                      <li key={t.tag_name}>
+                        {t.tag_name}: {t.correct}/{t.total} ({t.pct}%)
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="ml-4">None identified</p>
+                )}
+              </div>
+
+              <div>
+                <h3 className="font-semibold">Areas to Improve</h3>
+                {emp.weaknesses.length ? (
+                  <ul className="list-disc list-inside ml-4">
+                    {emp.weaknesses.map((t) => (
+                      <li key={t.tag_name}>
+                        {t.tag_name}: {t.correct}/{t.total} ({t.pct}%)
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="ml-4">None identified</p>
+                )}
+              </div>
+            </div>
+          </details>
+        ))}
       </section>
     </div>
   );
