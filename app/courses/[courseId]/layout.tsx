@@ -15,7 +15,7 @@ export default async function CourseLayout({
 
   const response = {
     id: courseId,
-    name: "Sample Course", // Replace with actual API call to fetch course details
+    name: "Sample Course",
   };
   return (
     <div className="max-w-4xl mx-auto bg-white p-6 rounded shadow">

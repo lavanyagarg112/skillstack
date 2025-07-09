@@ -14,13 +14,11 @@ export default function MemberPasswordSettings() {
     setMessage(null);
     setError(null);
 
-    // Validate password confirmation
     if (newPassword !== confirmPassword) {
       setError("New passwords do not match");
       return;
     }
 
-    // Validate password strength
     if (newPassword.length < 8) {
       setError("New password must be at least 8 characters long");
       return;
@@ -43,7 +41,6 @@ export default function MemberPasswordSettings() {
         throw new Error(errorData.message || "Failed to update password");
       }
 
-      // Clear form on success
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
@@ -72,7 +69,6 @@ export default function MemberPasswordSettings() {
         Change Password
       </h2>
       <form onSubmit={handleSubmit} className="space-y-5">
-        {/* Current Password */}
         <div>
           <label className="block text-sm font-medium text-gray-700">
             Current Password
@@ -87,7 +83,6 @@ export default function MemberPasswordSettings() {
           />
         </div>
 
-        {/* New Password */}
         <div>
           <label className="block text-sm font-medium text-gray-700">
             New Password
@@ -106,7 +101,6 @@ export default function MemberPasswordSettings() {
           </p>
         </div>
 
-        {/* Confirm New Password */}
         <div>
           <label className="block text-sm font-medium text-gray-700">
             Confirm New Password
@@ -131,7 +125,6 @@ export default function MemberPasswordSettings() {
           </div>
         )}
 
-        {/* Save / Cancel */}
         <div className="flex justify-end space-x-3 pt-6 border-t">
           <button
             type="button"

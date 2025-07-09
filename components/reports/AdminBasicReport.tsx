@@ -1,4 +1,3 @@
-// components/reports/AdminBasicReport.tsx
 "use client";
 
 import { useState, useEffect } from "react";

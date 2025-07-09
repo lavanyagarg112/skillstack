@@ -1,4 +1,3 @@
-// components/organisation/courses/CourseForm.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -10,7 +9,12 @@ export interface Course {
   name: string;
   description?: string;
   channel?: { id: number; name: string; description?: string };
-  level?: { id: number; name: string; description?: string; sort_order?: number };
+  level?: {
+    id: number;
+    name: string;
+    description?: string;
+    sort_order?: number;
+  };
 }
 interface Channel {
   id: number;
@@ -50,7 +54,9 @@ export default function CourseForm({ mode, courseId }: Props) {
       .then((r) => r.json())
       .then((channels: Channel[]) => {
         setAllChannels(channels);
-        setChannelOptions(channels.map((c) => ({ value: c.id, label: c.name })));
+        setChannelOptions(
+          channels.map((c) => ({ value: c.id, label: c.name }))
+        );
       })
       .catch(console.error);
 
@@ -99,12 +105,12 @@ export default function CourseForm({ mode, courseId }: Props) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!selectedChannel || !selectedLevel) {
       alert("Please select both channel and level");
       return;
     }
-    
+
     const payload = {
       courseName: name,
       description,

@@ -74,7 +74,6 @@ export default function BasicReport() {
 
   return (
     <div className="space-y-8">
-      {/* Courses Done */}
       <section>
         <h2 className="text-2xl font-semibold ">Courses Completed</h2>
         {data.coursesDone.length ? (
@@ -109,13 +108,11 @@ export default function BasicReport() {
         )}
       </section>
 
-      {/* Modules Done */}
       <section>
         <h2 className="text-2xl font-semibold">Modules Completed</h2>
         <p className="text-lg">{data.modulesDone}</p>
       </section>
 
-      {/* Quiz Results */}
       <section>
         <h2 className="text-2xl font-semibold">Quiz Results</h2>
         {data.quizResults.length ? (
@@ -146,7 +143,6 @@ export default function BasicReport() {
         )}
       </section>
 
-      {/* Strengths */}
       <section>
         <h2 className="text-2xl font-semibold">Strengths</h2>
         {data.strengths.length ? (
@@ -162,7 +158,6 @@ export default function BasicReport() {
         )}
       </section>
 
-      {/* Weaknesses */}
       <section>
         <h2 className="text-2xl font-semibold">Areas to Improve</h2>
         {data.weaknesses.length ? (
