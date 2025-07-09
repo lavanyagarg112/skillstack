@@ -168,6 +168,34 @@ export default function OnboardingConfig() {
     }
   };
 
+  const deleteOption = async (optionId: number, questionId: number) => {
+    if (!confirm("Delete this option?")) {
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const res = await fetch(`/api/onboarding/options/${optionId}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+
+      if (res.ok) {
+        await fetchQuestions();
+      } else {
+        const errorData = await res.json().catch(() => ({}));
+        setError(errorData.message || "Failed to delete option");
+      }
+    } catch (err) {
+      setError("Error deleting option");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="p-6 space-y-6">
       <h1 className="text-2xl font-bold">Onboarding Form Configuration</h1>
@@ -234,7 +262,7 @@ export default function OnboardingConfig() {
               </div>
             </div>
 
-            {question.options.length > 0 && (
+            {question.options.length > 0 ? (
               <div className="mb-4">
                 <h4 className="font-medium mb-2">Options:</h4>
                 <div className="space-y-2">
@@ -243,15 +271,36 @@ export default function OnboardingConfig() {
                       key={option.id}
                       className="flex items-center justify-between bg-gray-50 p-2 rounded"
                     >
-                      <span>{option.option_text}</span>
-                      {option.tag_name && (
-                        <span className="inline-flex items-center bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm">
-                          {option.tag_name}
-                        </span>
-                      )}
+                      <div className="flex items-center flex-1">
+                        <span>{option.option_text}</span>
+                        {option.tag_name && (
+                          <span className="inline-flex items-center bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm ml-2">
+                            {option.tag_name}
+                          </span>
+                        )}
+                      </div>
+                      <button
+                        onClick={() => deleteOption(option.id, question.id)}
+                        disabled={loading || question.options.length <= 1}
+                        className="ml-2 px-2 py-1 bg-red-600 hover:bg-red-700 text-white rounded text-xs disabled:opacity-50 disabled:cursor-not-allowed"
+                        title={
+                          question.options.length <= 1
+                            ? "Cannot delete the last option"
+                            : "Delete option"
+                        }
+                      >
+                        Delete
+                      </button>
                     </div>
                   ))}
                 </div>
+              </div>
+            ) : (
+              <div className="mb-4 p-3 bg-yellow-100 border border-yellow-400 text-yellow-700 rounded">
+                <p className="text-sm">
+                  ⚠️ This question has no options yet. Add at least one option
+                  to make it available to employees.
+                </p>
               </div>
             )}
 
