@@ -25,7 +25,7 @@ export default function RoadmapPage() {
       const response = await fetch("/api/roadmaps", {
         credentials: "include",
       });
-      
+
       if (response.ok) {
         const data = await response.json();
         setRoadmaps(data.roadmaps || []);
@@ -60,7 +60,7 @@ export default function RoadmapPage() {
   };
 
   const autoGenerateRoadmap = async () => {
-    const name = prompt("Enter roadmap name:", "My AI-Generated Roadmap");
+    const name = prompt("Enter roadmap name:", "My Auto-Generated Roadmap");
     if (!name?.trim()) return;
 
     try {
@@ -75,11 +75,15 @@ export default function RoadmapPage() {
         const data = await response.json();
         setRoadmaps([data.roadmap, ...roadmaps]);
         setSelectedRoadmap(data.roadmap);
-        
+
         if (data.modulesAdded > 0) {
-          alert(`Generated roadmap with ${data.modulesAdded} recommended modules based on your skills! You've been auto-enrolled in ${data.enrolledCourses} courses.`);
+          alert(
+            `Generated roadmap with ${data.modulesAdded} recommended modules based on your skills! You've been auto-enrolled in ${data.enrolledCourses} courses.`
+          );
         } else {
-          alert("Generated empty roadmap - no modules found matching your skills. You can add modules manually.");
+          alert(
+            "Generated empty roadmap - no modules found matching your skills. You can add modules manually."
+          );
         }
       }
     } catch (error) {
@@ -95,7 +99,7 @@ export default function RoadmapPage() {
       });
 
       if (response.ok) {
-        setRoadmaps(roadmaps.filter(r => r.id !== roadmapId));
+        setRoadmaps(roadmaps.filter((r) => r.id !== roadmapId));
         if (selectedRoadmap?.id === roadmapId) {
           setSelectedRoadmap(null);
         }
@@ -106,9 +110,9 @@ export default function RoadmapPage() {
   };
 
   const updateRoadmap = (updatedRoadmap: Roadmap) => {
-    setRoadmaps(roadmaps.map(r => 
-      r.id === updatedRoadmap.id ? updatedRoadmap : r
-    ));
+    setRoadmaps(
+      roadmaps.map((r) => (r.id === updatedRoadmap.id ? updatedRoadmap : r))
+    );
     setSelectedRoadmap(updatedRoadmap);
   };
 
