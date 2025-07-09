@@ -4,10 +4,13 @@ import { useAuth } from "@/context/AuthContext";
 import { useState } from "react";
 import ManageTags from "@/components/organisation/settings/ManageTags";
 import OnboardingConfig from "@/components/organisation/settings/OnboardingConfig";
+import OrgSettings from "@/components/organisation/settings/OrgSettings";
 
 export default function OrganisationsPage() {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState<"tags" | "onboarding">("tags");
+  const [activeTab, setActiveTab] = useState<
+    "tags" | "onboarding" | "orgSettings"
+  >("tags");
 
   if (!user || !user.hasCompletedOnboarding) {
     return null;
@@ -29,7 +32,7 @@ export default function OrganisationsPage() {
       <h1 className="text-3xl font-bold mb-6 text-purple-600">
         My Organisation
       </h1>
-      
+
       {/* Tab Navigation */}
       <div className="mb-6">
         <div className="border-b border-gray-200">
@@ -54,6 +57,16 @@ export default function OrganisationsPage() {
             >
               Onboarding Form
             </button>
+            <button
+              onClick={() => setActiveTab("orgSettings")}
+              className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                activeTab === "orgSettings"
+                  ? "border-purple-500 text-purple-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              }`}
+            >
+              Organisation Settings
+            </button>
           </nav>
         </div>
       </div>
@@ -61,6 +74,7 @@ export default function OrganisationsPage() {
       {/* Tab Content */}
       {activeTab === "tags" && <ManageTags />}
       {activeTab === "onboarding" && <OnboardingConfig />}
+      {activeTab === "orgSettings" && <OrgSettings />}
     </div>
   );
 }
