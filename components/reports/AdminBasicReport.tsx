@@ -3,6 +3,19 @@
 
 import { useState, useEffect } from "react";
 
+interface Channel {
+  id: number;
+  name: string;
+  description?: string;
+}
+
+interface Level {
+  id: number;
+  name: string;
+  description?: string;
+  sort_order?: number;
+}
+
 interface CourseSummary {
   id: number;
   name: string;
@@ -13,12 +26,16 @@ interface CourseSummary {
   pdfs: number;
   slides: number;
   others: number;
+  channel?: Channel;
+  level?: Level;
 }
 
 interface CourseDone {
   id: number;
   name: string;
   completed_at: string;
+  channel?: Channel;
+  level?: Level;
 }
 
 interface QuizResult {
@@ -90,6 +107,8 @@ export default function AdminBasicReport() {
           <thead>
             <tr>
               <th className="border px-2 py-1 text-left">Course</th>
+              <th className="border px-2 py-1">Channel</th>
+              <th className="border px-2 py-1">Level</th>
               <th className="border px-2 py-1">Enrolled</th>
               <th className="border px-2 py-1">Completed</th>
               <th className="border px-2 py-1">Videos</th>
@@ -103,6 +122,24 @@ export default function AdminBasicReport() {
             {data.courses.map((c) => (
               <tr key={c.id}>
                 <td className="border px-2 py-1">{c.name}</td>
+                <td className="border px-2 py-1">
+                  {c.channel ? (
+                    <span className="inline-flex items-center bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
+                      {c.channel.name}
+                    </span>
+                  ) : (
+                    <span className="text-gray-400">—</span>
+                  )}
+                </td>
+                <td className="border px-2 py-1">
+                  {c.level ? (
+                    <span className="inline-flex items-center bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
+                      {c.level.name}
+                    </span>
+                  ) : (
+                    <span className="text-gray-400">—</span>
+                  )}
+                </td>
                 <td className="border px-2 py-1">{c.total_enrolled}</td>
                 <td className="border px-2 py-1">{c.total_completed}</td>
                 <td className="border px-2 py-1">{c.videos}</td>
@@ -134,14 +171,32 @@ export default function AdminBasicReport() {
               <div>
                 <h3 className="font-semibold">Courses Completed</h3>
                 {emp.coursesDone.length ? (
-                  <ul className="list-disc list-inside ml-4">
+                  <div className="ml-4 space-y-2">
                     {emp.coursesDone.map((c) => (
-                      <li key={c.id}>
-                        {c.name} —{" "}
-                        {new Date(c.completed_at).toLocaleDateString()}
-                      </li>
+                      <div key={c.id} className="bg-gray-50 p-2 rounded">
+                        <div className="flex items-center justify-between">
+                          <span className="font-medium">{c.name}</span>
+                          <span className="text-sm text-gray-600">
+                            {new Date(c.completed_at).toLocaleDateString()}
+                          </span>
+                        </div>
+                        {(c.channel || c.level) && (
+                          <div className="mt-1 flex flex-wrap gap-1">
+                            {c.channel && (
+                              <span className="inline-flex items-center bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
+                                {c.channel.name}
+                              </span>
+                            )}
+                            {c.level && (
+                              <span className="inline-flex items-center bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
+                                {c.level.name}
+                              </span>
+                            )}
+                          </div>
+                        )}
+                      </div>
                     ))}
-                  </ul>
+                  </div>
                 ) : (
                   <p className="ml-4">None yet</p>
                 )}

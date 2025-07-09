@@ -2,16 +2,35 @@
 
 import { useState, useEffect } from "react";
 
-interface Tag {
+interface Skill {
   id: number;
   name: string;
+  description?: string;
+}
+
+interface Channel {
+  id: number;
+  name: string;
+  description?: string;
+}
+
+interface Level {
+  id: number;
+  name: string;
+  description?: string;
+  sort_order: number;
 }
 
 interface Option {
   id: number;
   option_text: string;
-  tag_id: number | null;
-  tag_name: string | null;
+  skill_id: number | null;
+  skill_name: string | null;
+  skill_description: string | null;
+  channel_id: number | null;
+  channel_name: string | null;
+  level_id: number | null;
+  level_name: string | null;
 }
 
 interface Question {
@@ -23,11 +42,15 @@ interface Question {
 
 export default function OnboardingConfig() {
   const [questions, setQuestions] = useState<Question[]>([]);
-  const [tags, setTags] = useState<Tag[]>([]);
+  const [skills, setSkills] = useState<Skill[]>([]);
+  const [channels, setChannels] = useState<Channel[]>([]);
+  const [levels, setLevels] = useState<Level[]>([]);
   const [newQuestionText, setNewQuestionText] = useState("");
   const [editingQuestion, setEditingQuestion] = useState<number | null>(null);
   const [newOptionText, setNewOptionText] = useState("");
-  const [selectedTagId, setSelectedTagId] = useState<number | null>(null);
+  const [selectedSkillId, setSelectedSkillId] = useState<number | null>(null);
+  const [selectedChannelId, setSelectedChannelId] = useState<number | null>(null);
+  const [selectedLevelId, setSelectedLevelId] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -48,24 +71,56 @@ export default function OnboardingConfig() {
     }
   };
 
-  const fetchTags = async () => {
+  const fetchSkills = async () => {
     try {
-      const res = await fetch("/api/courses/tags", { credentials: "include" });
+      const res = await fetch("/api/courses/skills", { credentials: "include" });
       if (res.ok) {
         const data = await res.json();
-        setTags(data || []);
+        setSkills(data || []);
       } else {
-        setError("Failed to fetch tags");
+        setError("Failed to fetch skills");
       }
     } catch (err) {
-      setError("Error fetching tags");
+      setError("Error fetching skills");
+      console.error(err);
+    }
+  };
+
+  const fetchChannels = async () => {
+    try {
+      const res = await fetch("/api/courses/channels", { credentials: "include" });
+      if (res.ok) {
+        const data = await res.json();
+        setChannels(data || []);
+      } else {
+        setError("Failed to fetch channels");
+      }
+    } catch (err) {
+      setError("Error fetching channels");
+      console.error(err);
+    }
+  };
+
+  const fetchLevels = async () => {
+    try {
+      const res = await fetch("/api/courses/levels", { credentials: "include" });
+      if (res.ok) {
+        const data = await res.json();
+        setLevels(data || []);
+      } else {
+        setError("Failed to fetch levels");
+      }
+    } catch (err) {
+      setError("Error fetching levels");
       console.error(err);
     }
   };
 
   useEffect(() => {
     fetchQuestions();
-    fetchTags();
+    fetchSkills();
+    fetchChannels();
+    fetchLevels();
   }, []);
 
   const addQuestion = async () => {
@@ -147,14 +202,18 @@ export default function OnboardingConfig() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             option_text: text,
-            ...(selectedTagId && { tag_id: selectedTagId }),
+            ...(selectedSkillId && { skill_id: selectedSkillId }),
+            ...(selectedChannelId && { channel_id: selectedChannelId }),
+            ...(selectedLevelId && { level_id: selectedLevelId }),
           }),
         }
       );
 
       if (res.ok) {
         setNewOptionText("");
-        setSelectedTagId(null);
+        setSelectedSkillId(null);
+        setSelectedChannelId(null);
+        setSelectedLevelId(null);
         setEditingQuestion(null);
         await fetchQuestions();
       } else {
@@ -273,11 +332,23 @@ export default function OnboardingConfig() {
                     >
                       <div className="flex items-center flex-1">
                         <span>{option.option_text}</span>
-                        {option.tag_name && (
-                          <span className="inline-flex items-center bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm ml-2">
-                            {option.tag_name}
-                          </span>
-                        )}
+                        <div className="flex gap-1 ml-2">
+                          {option.skill_name && (
+                            <span className="inline-flex items-center bg-indigo-100 text-indigo-800 px-2 py-1 rounded-full text-xs">
+                              {option.skill_name}
+                            </span>
+                          )}
+                          {option.channel_name && (
+                            <span className="inline-flex items-center bg-emerald-100 text-emerald-800 px-2 py-1 rounded-full text-xs">
+                              {option.channel_name}
+                            </span>
+                          )}
+                          {option.level_name && (
+                            <span className="inline-flex items-center bg-amber-100 text-amber-800 px-2 py-1 rounded-full text-xs">
+                              {option.level_name}
+                            </span>
+                          )}
+                        </div>
                       </div>
                       <button
                         onClick={() => deleteOption(option.id, question.id)}
@@ -316,23 +387,59 @@ export default function OnboardingConfig() {
                     className="w-full p-2 border rounded focus:outline-none focus:ring"
                     disabled={loading}
                   />
-                  <select
-                    value={selectedTagId || ""}
-                    onChange={(e) =>
-                      setSelectedTagId(
-                        e.target.value ? parseInt(e.target.value) : null
-                      )
-                    }
-                    className="w-full p-2 border rounded focus:outline-none focus:ring"
-                    disabled={loading}
-                  >
-                    <option value="">No tag (optional)</option>
-                    {tags.map((tag) => (
-                      <option key={tag.id} value={tag.id}>
-                        {tag.name}
-                      </option>
-                    ))}
-                  </select>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <select
+                      value={selectedSkillId || ""}
+                      onChange={(e) =>
+                        setSelectedSkillId(
+                          e.target.value ? parseInt(e.target.value) : null
+                        )
+                      }
+                      className="p-2 border rounded focus:outline-none focus:ring"
+                      disabled={loading}
+                    >
+                      <option value="">No skill (optional)</option>
+                      {skills.map((skill) => (
+                        <option key={skill.id} value={skill.id}>
+                          {skill.name}
+                        </option>
+                      ))}
+                    </select>
+                    <select
+                      value={selectedChannelId || ""}
+                      onChange={(e) =>
+                        setSelectedChannelId(
+                          e.target.value ? parseInt(e.target.value) : null
+                        )
+                      }
+                      className="p-2 border rounded focus:outline-none focus:ring"
+                      disabled={loading}
+                    >
+                      <option value="">No channel (optional)</option>
+                      {channels.map((channel) => (
+                        <option key={channel.id} value={channel.id}>
+                          {channel.name}
+                        </option>
+                      ))}
+                    </select>
+                    <select
+                      value={selectedLevelId || ""}
+                      onChange={(e) =>
+                        setSelectedLevelId(
+                          e.target.value ? parseInt(e.target.value) : null
+                        )
+                      }
+                      className="p-2 border rounded focus:outline-none focus:ring"
+                      disabled={loading}
+                    >
+                      <option value="">No level (optional)</option>
+                      {levels.map((level) => (
+                        <option key={level.id} value={level.id}>
+                          {level.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                   <button
                     onClick={() => addOption(question.id)}
                     disabled={loading || !newOptionText.trim()}

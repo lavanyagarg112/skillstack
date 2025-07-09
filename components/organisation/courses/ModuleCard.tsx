@@ -5,9 +5,10 @@ import { useParams } from "next/navigation";
 import { useEffect } from "react";
 import { useState } from "react";
 
-export interface Tag {
+export interface Skill {
   id: number;
   name: string;
+  description?: string;
 }
 
 export interface Module {
@@ -15,7 +16,7 @@ export interface Module {
   title: string;
   module_type: string;
   position: number;
-  tags?: Tag[];
+  skills?: Skill[];
 }
 
 interface Props {
@@ -64,14 +65,14 @@ export default function ModuleCard({ module, isEditMode, isEnrolled }: Props) {
           <p className="text-sm text-gray-500 capitalize">
             {module.module_type}
           </p>
-          {!!module.tags?.length && (
+          {!!module.skills?.length && (
             <div className="mt-2 flex flex-wrap gap-1">
-              {module.tags.map((t) => (
+              {module.skills.map((s) => (
                 <span
-                  key={t.id}
-                  className="px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded-full"
+                  key={s.id}
+                  className="px-2 py-1 bg-indigo-100 text-indigo-800 text-xs rounded-full"
                 >
-                  {t.name}
+                  {s.name}
                 </span>
               ))}
             </div>

@@ -62,9 +62,9 @@ export default async function SettingsPage() {
               <MemberPasswordSettings />
             </div>
 
-            {/* <div className="lg:col-span-2">
+            <div className="lg:col-span-2">
               <MemberSkillsSettings />
-            </div> */}
+            </div>
           </div>
         </div>
       </div>
