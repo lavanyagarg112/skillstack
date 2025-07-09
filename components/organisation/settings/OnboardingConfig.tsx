@@ -10,8 +10,8 @@ interface Tag {
 interface Option {
   id: number;
   option_text: string;
-  tag_id: number;
-  tag_name: string;
+  tag_id: number | null;
+  tag_name: string | null;
 }
 
 interface Question {
@@ -33,7 +33,9 @@ export default function OnboardingConfig() {
 
   const fetchQuestions = async () => {
     try {
-      const res = await fetch("/api/onboarding/questions", { credentials: "include" });
+      const res = await fetch("/api/onboarding/questions", {
+        credentials: "include",
+      });
       if (res.ok) {
         const data = await res.json();
         setQuestions(data.questions || []);
@@ -80,7 +82,7 @@ export default function OnboardingConfig() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           question_text: text,
-          position: questions.length
+          position: questions.length,
         }),
       });
 
@@ -99,7 +101,11 @@ export default function OnboardingConfig() {
   };
 
   const deleteQuestion = async (id: number) => {
-    if (!confirm("Delete this question? All associated options will also be deleted.")) {
+    if (
+      !confirm(
+        "Delete this question? All associated options will also be deleted."
+      )
+    ) {
       return;
     }
 
@@ -127,21 +133,24 @@ export default function OnboardingConfig() {
 
   const addOption = async (questionId: number) => {
     const text = newOptionText.trim();
-    if (!text || !selectedTagId) return;
+    if (!text) return;
 
     setLoading(true);
     setError(null);
 
     try {
-      const res = await fetch(`/api/onboarding/questions/${questionId}/options`, {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          option_text: text,
-          tag_id: selectedTagId
-        }),
-      });
+      const res = await fetch(
+        `/api/onboarding/questions/${questionId}/options`,
+        {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            option_text: text,
+            ...(selectedTagId && { tag_id: selectedTagId }),
+          }),
+        }
+      );
 
       if (res.ok) {
         setNewOptionText("");
@@ -169,7 +178,6 @@ export default function OnboardingConfig() {
         </div>
       )}
 
-      {/* Add New Question */}
       <div className="bg-white p-4 rounded-lg shadow border">
         <h2 className="text-lg font-semibold mb-4">Add New Question</h2>
         <div className="flex flex-col sm:flex-row gap-2">
@@ -197,15 +205,21 @@ export default function OnboardingConfig() {
         </div>
       </div>
 
-      {/* Questions List */}
       <div className="space-y-4">
         {questions.map((question) => (
-          <div key={question.id} className="bg-white p-4 rounded-lg shadow border">
+          <div
+            key={question.id}
+            className="bg-white p-4 rounded-lg shadow border"
+          >
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-medium">{question.question_text}</h3>
               <div className="flex gap-2">
                 <button
-                  onClick={() => setEditingQuestion(editingQuestion === question.id ? null : question.id)}
+                  onClick={() =>
+                    setEditingQuestion(
+                      editingQuestion === question.id ? null : question.id
+                    )
+                  }
                   className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm"
                 >
                   {editingQuestion === question.id ? "Cancel" : "Add Option"}
@@ -220,24 +234,27 @@ export default function OnboardingConfig() {
               </div>
             </div>
 
-            {/* Options */}
             {question.options.length > 0 && (
               <div className="mb-4">
                 <h4 className="font-medium mb-2">Options:</h4>
                 <div className="space-y-2">
                   {question.options.map((option) => (
-                    <div key={option.id} className="flex items-center justify-between bg-gray-50 p-2 rounded">
+                    <div
+                      key={option.id}
+                      className="flex items-center justify-between bg-gray-50 p-2 rounded"
+                    >
                       <span>{option.option_text}</span>
-                      <span className="inline-flex items-center bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm">
-                        {option.tag_name}
-                      </span>
+                      {option.tag_name && (
+                        <span className="inline-flex items-center bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm">
+                          {option.tag_name}
+                        </span>
+                      )}
                     </div>
                   ))}
                 </div>
               </div>
             )}
 
-            {/* Add Option Form */}
             {editingQuestion === question.id && (
               <div className="bg-gray-50 p-4 rounded border">
                 <h4 className="font-medium mb-3">Add New Option</h4>
@@ -252,11 +269,15 @@ export default function OnboardingConfig() {
                   />
                   <select
                     value={selectedTagId || ""}
-                    onChange={(e) => setSelectedTagId(e.target.value ? parseInt(e.target.value) : null)}
+                    onChange={(e) =>
+                      setSelectedTagId(
+                        e.target.value ? parseInt(e.target.value) : null
+                      )
+                    }
                     className="w-full p-2 border rounded focus:outline-none focus:ring"
                     disabled={loading}
                   >
-                    <option value="">Select a tag</option>
+                    <option value="">No tag (optional)</option>
                     {tags.map((tag) => (
                       <option key={tag.id} value={tag.id}>
                         {tag.name}
@@ -265,7 +286,7 @@ export default function OnboardingConfig() {
                   </select>
                   <button
                     onClick={() => addOption(question.id)}
-                    disabled={loading || !newOptionText.trim() || !selectedTagId}
+                    disabled={loading || !newOptionText.trim()}
                     className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded disabled:opacity-50"
                   >
                     {loading ? "Adding..." : "Add Option"}
