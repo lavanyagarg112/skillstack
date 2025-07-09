@@ -2,9 +2,17 @@
 
 import Link from "next/link";
 
-export interface Tag {
+export interface Channel {
   id: number;
   name: string;
+  description?: string;
+}
+
+export interface Level {
+  id: number;
+  name: string;
+  description?: string;
+  sort_order?: number;
 }
 
 export interface Course {
@@ -13,7 +21,8 @@ export interface Course {
   description?: string;
   total_modules?: number;
   completed_modules?: number;
-  tags?: Tag[];
+  channel?: Channel;
+  level?: Level;
 }
 
 interface Props {
@@ -118,16 +127,18 @@ export default function CourseCard({
       <h2 className="text-xl font-semibold text-purple-600">{course.name}</h2>
       <p className="mt-2 text-gray-700">{course.description?.slice(0, 100)}</p>
 
-      {course.tags && course.tags.length > 0 && (
+      {(course.channel || course.level) && (
         <div className="mt-3 flex flex-wrap gap-2">
-          {course.tags.map((t) => (
-            <span
-              key={t.id}
-              className="px-2 py-1 bg-purple-100 text-purple-800 text-xs font-medium rounded-full"
-            >
-              {t.name}
+          {course.channel && (
+            <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">
+              {course.channel.name}
             </span>
-          ))}
+          )}
+          {course.level && (
+            <span className="px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full">
+              {course.level.name}
+            </span>
+          )}
         </div>
       )}
 

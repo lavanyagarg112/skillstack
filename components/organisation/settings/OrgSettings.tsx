@@ -100,7 +100,6 @@ export default function OrgSettings() {
           Organisation Settings
         </h2>
         <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Organisation Name */}
           <div>
             <label className="block text-sm font-medium text-gray-700">
               Organisation Name
@@ -115,7 +114,6 @@ export default function OrgSettings() {
             />
           </div>
 
-          {/* Description */}
           <div>
             <label className="block text-sm font-medium text-gray-700">
               Description
@@ -128,7 +126,6 @@ export default function OrgSettings() {
             />
           </div>
 
-          {/* AI Toggle */}
           <div className="flex items-center">
             <input
               id="aiEnabled"
@@ -174,7 +171,6 @@ export default function OrgSettings() {
             </div>
           )}
 
-          {/* Save / Cancel */}
           <div className="flex justify-end space-x-3 pt-6 border-t">
             <button
               type="button"

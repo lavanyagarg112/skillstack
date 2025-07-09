@@ -1,4 +1,3 @@
-// lib/auth.ts
 import { cookies } from "next/headers";
 
 export async function getAuthUser() {

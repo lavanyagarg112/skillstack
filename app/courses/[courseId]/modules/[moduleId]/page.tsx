@@ -1,4 +1,3 @@
-// app/courses/[courseId]/modules/[moduleId]/page.tsx
 import ModuleDetail from "@/components/organisation/courses/ModuleDetail";
 import { getAuthUser } from "@/lib/auth";
 

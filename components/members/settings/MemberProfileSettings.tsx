@@ -126,7 +126,6 @@ export default function MemberProfileSettings() {
         Profile Settings
       </h2>
       <form onSubmit={handleSubmit} className="space-y-5">
-        {/* First Name */}
         <div>
           <label className="block text-sm font-medium text-gray-700">
             First Name
@@ -141,7 +140,6 @@ export default function MemberProfileSettings() {
           />
         </div>
 
-        {/* Last Name */}
         <div>
           <label className="block text-sm font-medium text-gray-700">
             Last Name
@@ -156,7 +154,6 @@ export default function MemberProfileSettings() {
           />
         </div>
 
-        {/* Email */}
         <div>
           <label className="block text-sm font-medium text-gray-700">
             Email Address
@@ -180,7 +177,6 @@ export default function MemberProfileSettings() {
           </div>
         )}
 
-        {/* Save / Cancel */}
         <div className="flex justify-end space-x-3 pt-6 border-t">
           <button
             type="button"

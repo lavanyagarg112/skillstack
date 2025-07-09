@@ -1,4 +1,3 @@
-// components/organisation/courses/CourseForm.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -9,11 +8,24 @@ export interface Course {
   id: number;
   name: string;
   description?: string;
-  tags?: { id: number; name: string }[];
+  channel?: { id: number; name: string; description?: string };
+  level?: {
+    id: number;
+    name: string;
+    description?: string;
+    sort_order?: number;
+  };
 }
-interface Tag {
+interface Channel {
   id: number;
   name: string;
+  description?: string;
+}
+interface Level {
+  id: number;
+  name: string;
+  description?: string;
+  sort_order?: number;
 }
 interface Option {
   value: number;
@@ -28,17 +40,32 @@ interface Props {
 export default function CourseForm({ mode, courseId }: Props) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [allTags, setAllTags] = useState<Tag[]>([]);
-  const [options, setOptions] = useState<Option[]>([]);
-  const [selected, setSelected] = useState<Option[]>([]);
+  const [allChannels, setAllChannels] = useState<Channel[]>([]);
+  const [allLevels, setAllLevels] = useState<Level[]>([]);
+  const [channelOptions, setChannelOptions] = useState<Option[]>([]);
+  const [levelOptions, setLevelOptions] = useState<Option[]>([]);
+  const [selectedChannel, setSelectedChannel] = useState<Option | null>(null);
+  const [selectedLevel, setSelectedLevel] = useState<Option | null>(null);
   const router = useRouter();
 
   useEffect(() => {
-    fetch("/api/courses/tags", { credentials: "include" })
+    // Fetch channels
+    fetch("/api/courses/channels", { credentials: "include" })
       .then((r) => r.json())
-      .then((tags: Tag[]) => {
-        setAllTags(tags);
-        setOptions(tags.map((t) => ({ value: t.id, label: t.name })));
+      .then((channels: Channel[]) => {
+        setAllChannels(channels);
+        setChannelOptions(
+          channels.map((c) => ({ value: c.id, label: c.name }))
+        );
+      })
+      .catch(console.error);
+
+    // Fetch levels
+    fetch("/api/courses/levels", { credentials: "include" })
+      .then((r) => r.json())
+      .then((levels: Level[]) => {
+        setAllLevels(levels);
+        setLevelOptions(levels.map((l) => ({ value: l.id, label: l.name })));
       })
       .catch(console.error);
 
@@ -56,11 +83,18 @@ export default function CourseForm({ mode, courseId }: Props) {
         .then((course: Course) => {
           setName(course.name);
           setDescription(course.description || "");
-          const pre = (course.tags || []).map((t) => ({
-            value: t.id,
-            label: t.name,
-          }));
-          setSelected(pre);
+          if (course.channel) {
+            setSelectedChannel({
+              value: course.channel.id,
+              label: course.channel.name,
+            });
+          }
+          if (course.level) {
+            setSelectedLevel({
+              value: course.level.id,
+              label: course.level.name,
+            });
+          }
         })
         .catch((_) => {
           alert("Failed to load course");
@@ -71,12 +105,18 @@ export default function CourseForm({ mode, courseId }: Props) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const tags = selected.map((o) => o.value);
+
+    if (!selectedChannel || !selectedLevel) {
+      alert("Please select both channel and level");
+      return;
+    }
+
     const payload = {
       courseName: name,
       description,
-      tags,
-      updateTags: mode === "edit",
+      channelId: selectedChannel.value,
+      levelId: selectedLevel.value,
+      updateChannelLevel: mode === "edit",
     };
 
     const url = "/api/courses";
@@ -135,14 +175,25 @@ export default function CourseForm({ mode, courseId }: Props) {
         />
       </div>
 
-      <div>
-        <label className="block text-gray-700 mb-1">Tags</label>
-        <Select
-          isMulti
-          options={options}
-          value={selected}
-          onChange={(opts) => setSelected(opts as Option[])}
-        />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className="block text-gray-700 mb-1">Channel</label>
+          <Select
+            options={channelOptions}
+            value={selectedChannel}
+            onChange={(opt) => setSelectedChannel(opt as Option)}
+            placeholder="Select a channel..."
+          />
+        </div>
+        <div>
+          <label className="block text-gray-700 mb-1">Level</label>
+          <Select
+            options={levelOptions}
+            value={selectedLevel}
+            onChange={(opt) => setSelectedLevel(opt as Option)}
+            placeholder="Select a level..."
+          />
+        </div>
       </div>
 
       <div className="space-x-4">

@@ -2,10 +2,25 @@
 
 import { useEffect, useState } from "react";
 
+interface Channel {
+  id: number;
+  name: string;
+  description?: string;
+}
+
+interface Level {
+  id: number;
+  name: string;
+  description?: string;
+  sort_order?: number;
+}
+
 interface CourseDone {
   id: number;
   name: string;
   completed_at: string;
+  channel?: Channel;
+  level?: Level;
 }
 
 interface QuizResult {
@@ -59,29 +74,45 @@ export default function BasicReport() {
 
   return (
     <div className="space-y-8">
-      {/* Courses Done */}
       <section>
         <h2 className="text-2xl font-semibold ">Courses Completed</h2>
         {data.coursesDone.length ? (
-          <ul className="list-disc list-inside">
+          <div className="space-y-3">
             {data.coursesDone.map((c) => (
-              <li key={c.id}>
-                {c.name} &mdash; {new Date(c.completed_at).toLocaleDateString()}
-              </li>
+              <div key={c.id} className="bg-gray-50 p-3 rounded-lg">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-medium text-lg">{c.name}</h3>
+                  <span className="text-sm text-gray-600">
+                    {new Date(c.completed_at).toLocaleDateString()}
+                  </span>
+                </div>
+                {(c.channel || c.level) && (
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {c.channel && (
+                      <span className="inline-flex items-center bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
+                        {c.channel.name}
+                      </span>
+                    )}
+                    {c.level && (
+                      <span className="inline-flex items-center bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
+                        {c.level.name}
+                      </span>
+                    )}
+                  </div>
+                )}
+              </div>
             ))}
-          </ul>
+          </div>
         ) : (
           <p>No courses completed yet.</p>
         )}
       </section>
 
-      {/* Modules Done */}
       <section>
         <h2 className="text-2xl font-semibold">Modules Completed</h2>
         <p className="text-lg">{data.modulesDone}</p>
       </section>
 
-      {/* Quiz Results */}
       <section>
         <h2 className="text-2xl font-semibold">Quiz Results</h2>
         {data.quizResults.length ? (
@@ -112,7 +143,6 @@ export default function BasicReport() {
         )}
       </section>
 
-      {/* Strengths */}
       <section>
         <h2 className="text-2xl font-semibold">Strengths</h2>
         {data.strengths.length ? (
@@ -128,7 +158,6 @@ export default function BasicReport() {
         )}
       </section>
 
-      {/* Weaknesses */}
       <section>
         <h2 className="text-2xl font-semibold">Areas to Improve</h2>
         {data.weaknesses.length ? (
