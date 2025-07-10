@@ -41,8 +41,8 @@ export default function AdminDashboard() {
         if (!res.ok) throw new Error("Failed to load dashboard");
         const json = await res.json();
         const enrollments = (json.enrollments || []).map((e: any) => ({
-          courseName: e.coursename, // map to camelCase
-          enrolledCount: Number(e.enrolledcount), // make sure it's a number
+          courseName: e.coursename,
+          enrolledCount: Number(e.enrolledcount),
         }));
         const employees = (json.employees || []).map((emp: any) => ({
           id: emp.id,
@@ -84,7 +84,6 @@ export default function AdminDashboard() {
     <div className="max-w-5xl mx-auto p-6 space-y-10">
       <h1 className="text-3xl font-bold text-gray-800 mb-6">{data.welcome}</h1>
 
-      {/* Quick Stat Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <DashboardStat label="Employees" value={totalEmployees} />
         <DashboardStat label="Courses" value={totalCourses} />
@@ -92,7 +91,6 @@ export default function AdminDashboard() {
         <DashboardStat label="Courses Completed" value={totalCompleted} />
       </div>
 
-      {/* Enrollment Chart Card */}
       <div className="bg-white rounded-xl shadow-lg p-6">
         <h2 className="text-xl font-semibold mb-4">Course Enrollments</h2>
         <div style={{ width: "100%", height: 350 }}>
@@ -115,7 +113,6 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {/* Employee Table Card */}
       <div className="bg-white rounded-xl shadow-lg p-6">
         <h2 className="text-xl font-semibold mb-4">Employee Course Progress</h2>
         <div className="overflow-x-auto">
@@ -145,7 +142,6 @@ export default function AdminDashboard() {
   );
 }
 
-// Quick Stat Card component
 function DashboardStat({ label, value }: { label: string; value: number }) {
   return (
     <div className="bg-purple-50 rounded-xl p-5 text-center shadow border">
