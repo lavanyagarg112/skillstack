@@ -1,4 +1,5 @@
 import ModuleDetail from "@/components/organisation/courses/ModuleDetail";
+import ModuleChatBot from "@/components/chatbot/ModuleChatBot";
 import { getAuthUser } from "@/lib/auth";
 
 export default async function ModulePage({
@@ -8,11 +9,12 @@ export default async function ModulePage({
 }) {
   const user = await getAuthUser();
   const isAdmin = user?.organisation?.role === "admin";
-  const { moduleId } = await params;
+  const { courseId, moduleId } = await params;
 
   return (
-    <div className="max-w-3xl mx-auto bg-white p-6 rounded shadow">
+    <div className="max-w-3xl mx-auto bg-white p-6 rounded shadow space-y-8">
       <ModuleDetail moduleId={moduleId} isAdmin={isAdmin} />
+      <ModuleChatBot courseId={courseId} moduleId={moduleId} />
     </div>
   );
 }
