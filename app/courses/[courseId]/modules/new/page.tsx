@@ -8,7 +8,7 @@ export default async function NewModulePage({
   params: { courseId: string };
 }) {
   const user = await getAuthUser();
-  const { courseId } = await params;
+  const { courseId } = params;
   if (!courseId) {
     redirect("/courses");
   }

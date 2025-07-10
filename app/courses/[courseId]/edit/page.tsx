@@ -8,7 +8,7 @@ export default async function EditCoursePage({
   params: { courseId: string };
 }) {
   const user = await getAuthUser();
-  const { courseId } = await params;
+  const { courseId } = params;
   if (user?.organisation?.role !== "admin") {
     redirect(`/courses/${courseId}`);
   }
