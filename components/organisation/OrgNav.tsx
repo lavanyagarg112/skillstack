@@ -8,6 +8,7 @@ import {
   HomeIcon,
   BookOpenIcon,
   ChartBarIcon,
+  ClockIcon,
   UsersIcon,
   CogIcon,
 } from "@heroicons/react/24/outline";
@@ -28,6 +29,7 @@ const menuSections = [
     items: [
       { label: "My Organisation", href: "/organisation", icon: UsersIcon },
       { label: "Users", href: "/users", icon: UsersIcon },
+      { label: "History", href: "/history", icon: ClockIcon },
       { label: "Settings", href: "/settings", icon: CogIcon },
     ],
   },

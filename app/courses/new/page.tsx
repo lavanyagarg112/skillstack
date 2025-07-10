@@ -1,4 +1,3 @@
-// app/courses/new/page.tsx
 import { redirect } from "next/navigation";
 import { getAuthUser } from "@/lib/auth";
 import CourseForm from "@/components/organisation/courses/CourseForm";

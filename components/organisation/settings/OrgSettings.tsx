@@ -14,7 +14,7 @@ export default function OrgSettings() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [aiEnabled, setAiEnabled] = useState(false);
-  const [transferEmail, setTransferEmail] = useState("");
+  // const [transferEmail, setTransferEmail] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -86,12 +86,12 @@ export default function OrgSettings() {
     }
   };
 
-  const handleTransfer = async () => {
-    if (!transferEmail) return;
-    // open confirmation modal...
-    // then call API to transfer ownership
-    alert(`Transfer ownership is not implemented yet.`);
-  };
+  // const handleTransfer = async () => {
+  //   if (!transferEmail) return;
+  //   // open confirmation modal...
+  //   // then call API to transfer ownership
+  //   alert(`Transfer ownership is not implemented yet.`);
+  // };
 
   return (
     <div className="flex justify-center py-10 px-4">
@@ -100,7 +100,6 @@ export default function OrgSettings() {
           Organisation Settings
         </h2>
         <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Organisation Name */}
           <div>
             <label className="block text-sm font-medium text-gray-700">
               Organisation Name
@@ -115,7 +114,6 @@ export default function OrgSettings() {
             />
           </div>
 
-          {/* Description */}
           <div>
             <label className="block text-sm font-medium text-gray-700">
               Description
@@ -128,7 +126,6 @@ export default function OrgSettings() {
             />
           </div>
 
-          {/* AI Toggle */}
           <div className="flex items-center">
             <input
               id="aiEnabled"
@@ -143,7 +140,7 @@ export default function OrgSettings() {
           </div>
 
           {/* Transfer Ownership */}
-          <div>
+          {/* <div>
             <label className="block text-sm font-medium text-gray-700">
               Transfer Ownership
             </label>
@@ -163,7 +160,7 @@ export default function OrgSettings() {
                 Transfer
               </button>
             </div>
-          </div>
+          </div> */}
 
           {error && (
             <div className="text-red-600 text-sm mb-4 text-center">{error}</div>
@@ -174,7 +171,6 @@ export default function OrgSettings() {
             </div>
           )}
 
-          {/* Save / Cancel */}
           <div className="flex justify-end space-x-3 pt-6 border-t">
             <button
               type="button"

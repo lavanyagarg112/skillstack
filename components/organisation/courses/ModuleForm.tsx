@@ -6,9 +6,10 @@ import { useEffect } from "react";
 import { ModuleDetailData } from "./ModuleDetail";
 import Select from "react-select";
 
-interface Tag {
+interface Skill {
   id: number;
   name: string;
+  description?: string;
 }
 interface Option {
   value: number;
@@ -35,15 +36,15 @@ export default function ModuleForm({ mode, courseId, moduleId }: Props) {
     useState<ModuleDetailData["module_type"]>("pdf");
 
   const [questions, setQuestions] = useState<Question[]>([]);
-  const [allTags, setAllTags] = useState<Tag[]>([]);
+  const [allSkills, setAllSkills] = useState<Skill[]>([]);
   const [options, setOptions] = useState<Option[]>([]);
   const [selected, setSelected] = useState<Option[]>([]);
   useEffect(() => {
-    fetch("/api/courses/tags", { credentials: "include" })
+    fetch("/api/courses/skills", { credentials: "include" })
       .then((r) => r.json())
-      .then((tags: Tag[]) => {
-        setAllTags(tags);
-        setOptions(tags.map((t) => ({ value: t.id, label: t.name })));
+      .then((skills: Skill[]) => {
+        setAllSkills(skills);
+        setOptions(skills.map((s) => ({ value: s.id, label: s.name })));
       })
       .catch(console.error);
     if (mode === "edit" && moduleId) {
@@ -57,12 +58,12 @@ export default function ModuleForm({ mode, courseId, moduleId }: Props) {
           if (!r.ok) throw new Error();
           return r.json();
         })
-        .then((mod: ModuleDetailData & { tags?: Tag[] }) => {
+        .then((mod: ModuleDetailData & { skills?: Skill[] }) => {
           setName(mod.title);
           setDescription(mod.description);
           setModuleType(mod.module_type);
           setSelected(
-            (mod.tags || []).map((t) => ({ value: t.id, label: t.name }))
+            (mod.skills || []).map((s) => ({ value: s.id, label: s.name }))
           );
         })
         .catch(() => {
@@ -124,12 +125,12 @@ export default function ModuleForm({ mode, courseId, moduleId }: Props) {
       } else if (uploadFile) {
         fd.append("file", uploadFile);
       }
-      const tagsPayload = selected.map((opt) => ({
+      const skillsPayload = selected.map((opt) => ({
         id: typeof opt.value === "number" ? opt.value : undefined,
         name: typeof opt.value === "string" ? opt.value : undefined,
         isNew: typeof opt.value === "string",
       }));
-      fd.append("moduleTags", JSON.stringify(tagsPayload));
+      fd.append("moduleSkills", JSON.stringify(skillsPayload));
       try {
         const res = await fetch("/api/courses/add-module", {
           method: "POST",
@@ -193,13 +194,13 @@ export default function ModuleForm({ mode, courseId, moduleId }: Props) {
         fd.append("type", moduleType);
         fd.append("file", uploadFile);
       }
-      const tagsPayload = selected.map((opt) => ({
+      const skillsPayload = selected.map((opt) => ({
         id: typeof opt.value === "number" ? opt.value : undefined,
         name: typeof opt.value === "string" ? opt.value : undefined,
         isNew: typeof opt.value === "string",
       }));
-      fd.append("moduleTags", JSON.stringify(tagsPayload));
-      fd.append("updateTags", "true");
+      fd.append("moduleSkills", JSON.stringify(skillsPayload));
+      fd.append("updateSkills", "true");
       try {
         const res = await fetch("/api/courses/update-module", {
           method: "PUT",
@@ -466,12 +467,13 @@ export default function ModuleForm({ mode, courseId, moduleId }: Props) {
         </div>
       )}
       <div>
-        <label className="block text-gray-700 mb-1">Tags</label>
+        <label className="block text-gray-700 mb-1">Skills</label>
         <Select
           isMulti
           options={options}
           value={selected}
           onChange={(opts) => setSelected(opts as Option[])}
+          placeholder="Select skills..."
         />
       </div>
       <div className="space-x-4">

@@ -8,7 +8,6 @@ import {
   HomeIcon,
   BookOpenIcon,
   ChartBarIcon,
-  UsersIcon,
   MapIcon,
   ClockIcon,
   CogIcon,
@@ -30,7 +29,6 @@ const menuSections = [
     heading: "Management",
     items: [
       { label: "History", href: "/history", icon: ClockIcon },
-      //   { label: "Organisations", href: "/organisations", icon: UsersIcon },
       { label: "Settings", href: "/settings", icon: CogIcon },
     ],
   },
