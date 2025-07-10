@@ -9,7 +9,7 @@ export default async function ModulePage({
 }) {
   const user = await getAuthUser();
   const isAdmin = user?.organisation?.role === "admin";
-  const { courseId, moduleId } = await params;
+  const { courseId, moduleId } = params;
 
   return (
     <div className="max-w-3xl mx-auto bg-white p-6 rounded">
