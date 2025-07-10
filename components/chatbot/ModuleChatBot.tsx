@@ -24,7 +24,10 @@ export default function ModuleChatbot({
     const fetchLogs = async () => {
       try {
         const res = await fetch("/api/chatbot/logs", {
+          method: "POST",
           credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ courseId, moduleId }),
         });
         const data = await res.json();
         if (data.success && Array.isArray(data.logs)) {
