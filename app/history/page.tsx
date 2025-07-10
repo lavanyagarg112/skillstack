@@ -8,5 +8,15 @@ export default function HistoryPage() {
   if (!user || !user.hasCompletedOnboarding) {
     return null;
   }
-  return <HistoryComponent />;
+  return (
+    <div>
+      <h1 className="text-3xl font-bold mb-6 text-purple-600">
+        Activity History
+      </h1>
+      <p className="mb-4 text-gray-600">
+        View your recent activity and changes made in the system.
+      </p>
+      <HistoryComponent />
+    </div>
+  );
 }
