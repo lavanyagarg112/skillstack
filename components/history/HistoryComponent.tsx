@@ -15,7 +15,7 @@ export default function HistoryComponent() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch("/api/history", { credentials: "include" })
+    fetch("/api/activity", { credentials: "include" })
       .then((res) => {
         if (!res.ok) throw new Error(`Status ${res.status}`);
         return res.json();
