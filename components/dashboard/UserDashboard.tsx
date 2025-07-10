@@ -21,6 +21,10 @@ interface DashboardData {
     completedModules: number;
     totalModules: number;
   };
+  globalStats: {
+    completedModules: number;
+    totalModules: number;
+  };
 }
 
 export default function UserDashboard() {
@@ -61,23 +65,20 @@ export default function UserDashboard() {
     nextToLearn,
     toRevise,
     summaryStats,
+    globalStats,
   } = data;
 
   return (
-    <div className="bg-[#fafbff] min-h-screen py-8 px-2">
+    <div className="bg-[#fcfcfc] min-h-screen py-8 px-2">
       <div className="max-w-6xl mx-auto">
-        {/* GRID */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* LEFT COLUMN */}
           <div className="md:col-span-2 space-y-7">
-            {/* WELCOME */}
             <div>
               <div className="text-3xl md:text-4xl font-bold text-purple-700 mb-2 tracking-tight">
                 {welcome}
               </div>
             </div>
 
-            {/* CONTINUE SECTION */}
             <div>
               <div className="text-xl font-semibold mb-3 text-gray-900">
                 Continue where you left off
@@ -102,19 +103,17 @@ export default function UserDashboard() {
                   </>
                 ) : (
                   <div className="text-gray-500 font-medium">
-                    No course in progress.
+                    No module in progress.
                   </div>
                 )}
               </div>
             </div>
 
-            {/* NEXT STEPS */}
             <div>
               <div className="text-xl font-semibold mb-3 text-gray-900">
                 Next Steps For You
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {/* LEARN */}
                 <div className="rounded-2xl bg-purple-50 p-4 shadow">
                   <div className="font-bold text-purple-700 mb-1">Learn</div>
                   {nextToLearn && nextToLearn.length > 0 ? (
@@ -131,7 +130,6 @@ export default function UserDashboard() {
                     <div className="text-gray-400">All caught up!</div>
                   )}
                 </div>
-                {/* REVISE */}
                 <div className="rounded-2xl bg-purple-50 p-4 shadow">
                   <div className="font-bold text-purple-700 mb-1">Revise</div>
                   {toRevise && toRevise.length > 0 ? (
@@ -152,39 +150,79 @@ export default function UserDashboard() {
             </div>
           </div>
 
-          {/* RIGHT COLUMN */}
           <div className="space-y-6">
-            {/* AT A GLANCE */}
-            <div className="rounded-2xl bg-gray-100 shadow-md p-7 flex flex-col items-center justify-center h-full min-h-[200px]">
-              <div className="text-lg font-bold mb-2 text-gray-900">
+            <div className="rounded-2xl bg-gray-100 shadow-md p-7 flex flex-col items-center justify-center h-full min-h-[260px]">
+              <div className="text-lg font-bold mb-4 text-gray-900">
                 At a glance
               </div>
-              <div className="text-base font-medium text-gray-800 mb-2">
-                Modules Completed
+
+              <div className="w-full mb-5">
+                <div className="text-base font-medium text-gray-800 mb-1">
+                  Modules Completed{" "}
+                  <span className="text-xs text-gray-500">
+                    (Current Course)
+                  </span>
+                </div>
+                <div className="flex items-end gap-1 mb-2">
+                  <span className="text-3xl font-bold text-purple-600">
+                    {summaryStats.completedModules}
+                  </span>
+                  <span className="text-xl text-gray-400 font-bold">/</span>
+                  <span className="text-xl font-bold text-purple-400">
+                    {summaryStats.totalModules}
+                  </span>
+                </div>
+                <div className="text-xs text-gray-500 mb-1">
+                  {currentCourse?.name}
+                </div>
+                {/* Progress bar */}
+                <div className="w-full bg-purple-100 h-2 rounded-full">
+                  <div
+                    className="bg-purple-600 h-2 rounded-full transition-all duration-500"
+                    style={{
+                      width: `${
+                        summaryStats.totalModules > 0
+                          ? (summaryStats.completedModules /
+                              summaryStats.totalModules) *
+                            100
+                          : 0
+                      }%`,
+                    }}
+                  ></div>
+                </div>
               </div>
-              <div className="flex items-end gap-1 mb-3">
-                <span className="text-4xl font-bold text-purple-600">
-                  {summaryStats.completedModules}
-                </span>
-                <span className="text-2xl text-gray-400 font-bold">/</span>
-                <span className="text-2xl font-bold text-purple-400">
-                  {summaryStats.totalModules}
-                </span>
-              </div>
-              {/* Progress bar */}
-              <div className="w-full bg-purple-100 h-3 rounded-full">
-                <div
-                  className="bg-purple-600 h-3 rounded-full transition-all duration-500"
-                  style={{
-                    width: `${
-                      summaryStats.totalModules > 0
-                        ? (summaryStats.completedModules /
-                            summaryStats.totalModules) *
-                          100
-                        : 0
-                    }%`,
-                  }}
-                ></div>
+
+              <div className="w-full">
+                <div className="text-base font-medium text-gray-800 mb-1">
+                  Modules Completed{" "}
+                  <span className="text-xs text-gray-500">(All Courses)</span>
+                </div>
+                <div className="flex items-end gap-1 mb-2">
+                  <span className="text-3xl font-bold text-purple-600">
+                    {globalStats.completedModules}
+                  </span>
+                  <span className="text-xl text-gray-400 font-bold">/</span>
+                  <span className="text-xl font-bold text-purple-400">
+                    {globalStats.totalModules}
+                  </span>
+                </div>
+                <div className="text-xs text-gray-500 mb-1">
+                  across all courses
+                </div>
+                <div className="w-full bg-purple-100 h-2 rounded-full">
+                  <div
+                    className="bg-purple-400 h-2 rounded-full transition-all duration-500"
+                    style={{
+                      width: `${
+                        globalStats.totalModules > 0
+                          ? (globalStats.completedModules /
+                              globalStats.totalModules) *
+                            100
+                          : 0
+                      }%`,
+                    }}
+                  ></div>
+                </div>
               </div>
             </div>
           </div>
