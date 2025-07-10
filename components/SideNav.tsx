@@ -8,7 +8,6 @@ import {
   HomeIcon,
   BookOpenIcon,
   ChartBarIcon,
-  UsersIcon,
   MapIcon,
   ClockIcon,
   CogIcon,
