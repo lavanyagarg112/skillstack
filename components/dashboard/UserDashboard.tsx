@@ -7,12 +7,10 @@ interface Course {
   id: number;
   name: string;
 }
-
 interface Module {
   id: number;
   title: string;
 }
-
 interface DashboardData {
   welcome: string;
   currentCourse: Course | null;
@@ -20,8 +18,8 @@ interface DashboardData {
   nextToLearn: Module[];
   toRevise: Module[];
   summaryStats: {
-    completed: number;
-    total: number;
+    completedModules: number;
+    totalModules: number;
   };
 }
 
@@ -66,85 +64,129 @@ export default function UserDashboard() {
   } = data;
 
   return (
-    <div className="max-w-4xl mx-auto p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
-      <div className="space-y-8">
-        <h1 className="text-3xl font-semibold text-purple-700">{welcome}</h1>
-        <div>
-          <h2 className="text-2xl font-bold mb-2">
-            Continue where you left off
-          </h2>
-          {currentCourse && currentModule ? (
-            <div className="bg-purple-200 p-6 rounded-xl shadow">
-              <div className="font-bold text-lg mb-1">{currentCourse.name}</div>
-              <div className="text-gray-700 mb-4">
-                Module: {currentModule.title}
+    <div className="bg-[#fafbff] min-h-screen py-8 px-2">
+      <div className="max-w-6xl mx-auto">
+        {/* GRID */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {/* LEFT COLUMN */}
+          <div className="md:col-span-2 space-y-7">
+            {/* WELCOME */}
+            <div>
+              <div className="text-3xl md:text-4xl font-bold text-purple-700 mb-2 tracking-tight">
+                {welcome}
               </div>
-              <Link
-                href={`/courses/${currentCourse.id}/modules/${currentModule.id}`}
-                className="inline-block bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 transition"
-              >
-                Resume
-              </Link>
             </div>
-          ) : (
-            <div className="text-gray-500">No course in progress.</div>
-          )}
-        </div>
-        <div>
-          <h2 className="text-2xl font-bold mb-2">Next Steps For You</h2>
-          <div className="mb-2">
-            <div className="font-medium">Learn</div>
-            {nextToLearn && nextToLearn.length > 0 ? (
-              nextToLearn.map((mod) => (
-                <Link
-                  key={mod.id}
-                  href={`/courses/${currentCourse?.id}/modules/${mod.id}`}
-                  className="block bg-purple-200 py-2 px-4 rounded mb-2 hover:bg-purple-300 transition"
-                >
-                  {mod.title}
-                </Link>
-              ))
-            ) : (
-              <div className="text-gray-500">All caught up!</div>
-            )}
+
+            {/* CONTINUE SECTION */}
+            <div>
+              <div className="text-xl font-semibold mb-3 text-gray-900">
+                Continue where you left off
+              </div>
+              <div className="rounded-2xl bg-white shadow p-6 flex flex-col sm:flex-row items-center sm:items-start gap-4">
+                {currentCourse && currentModule ? (
+                  <>
+                    <div className="flex-1">
+                      <div className="text-lg font-bold text-gray-800">
+                        {currentCourse.name}
+                      </div>
+                      <div className="text-gray-500 text-base mb-3">
+                        Module: {currentModule.title}
+                      </div>
+                      <Link
+                        href={`/courses/${currentCourse.id}/modules/${currentModule.id}`}
+                        className="inline-block bg-purple-600 text-white px-5 py-2 rounded-lg font-medium hover:bg-purple-700 transition shadow"
+                      >
+                        Resume
+                      </Link>
+                    </div>
+                  </>
+                ) : (
+                  <div className="text-gray-500 font-medium">
+                    No course in progress.
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* NEXT STEPS */}
+            <div>
+              <div className="text-xl font-semibold mb-3 text-gray-900">
+                Next Steps For You
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* LEARN */}
+                <div className="rounded-2xl bg-purple-50 p-4 shadow">
+                  <div className="font-bold text-purple-700 mb-1">Learn</div>
+                  {nextToLearn && nextToLearn.length > 0 ? (
+                    nextToLearn.map((mod) => (
+                      <Link
+                        key={mod.id}
+                        href={`/courses/${currentCourse?.id}/modules/${mod.id}`}
+                        className="block bg-white px-4 py-2 rounded-lg mb-2 shadow hover:bg-purple-100 font-medium"
+                      >
+                        {mod.title}
+                      </Link>
+                    ))
+                  ) : (
+                    <div className="text-gray-400">All caught up!</div>
+                  )}
+                </div>
+                {/* REVISE */}
+                <div className="rounded-2xl bg-purple-50 p-4 shadow">
+                  <div className="font-bold text-purple-700 mb-1">Revise</div>
+                  {toRevise && toRevise.length > 0 ? (
+                    toRevise.map((mod) => (
+                      <Link
+                        key={mod.id}
+                        href={`/courses/${currentCourse?.id}/modules/${mod.id}`}
+                        className="block bg-white px-4 py-2 rounded-lg mb-2 shadow hover:bg-purple-100 font-medium"
+                      >
+                        {mod.title}
+                      </Link>
+                    ))
+                  ) : (
+                    <div className="text-gray-400">Nothing to revise.</div>
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
-          <div>
-            <div className="font-medium">Revise</div>
-            {toRevise && toRevise.length > 0 ? (
-              toRevise.map((mod) => (
-                <Link
-                  key={mod.id}
-                  href={`/courses/${currentCourse?.id}/modules/${mod.id}`}
-                  className="block bg-purple-100 py-2 px-4 rounded mb-2 hover:bg-purple-200 transition"
-                >
-                  {mod.title}
-                </Link>
-              ))
-            ) : (
-              <div className="text-gray-500">Nothing to revise.</div>
-            )}
-          </div>
-        </div>
-      </div>
-      <div className="space-y-8">
-        <div className="bg-gray-100 p-8 rounded-xl shadow flex flex-col items-center">
-          <h2 className="text-xl font-semibold mb-2">At a glance</h2>
-          <div className="text-lg font-medium mb-1">Modules Completed</div>
-          <div className="text-3xl font-bold text-purple-700 mb-2">
-            {summaryStats.completed}{" "}
-            <span className="text-gray-500">/ {summaryStats.total}</span>
-          </div>
-          <div className="w-full bg-purple-100 h-3 rounded-full">
-            <div
-              className="bg-purple-600 h-3 rounded-full transition-all duration-500"
-              style={{
-                width: `${
-                  summaryStats.total > 0
-                    ? (summaryStats.completed / summaryStats.total) * 100
-                    : 0
-                }%`,
-              }}
-            ></div>
+
+          {/* RIGHT COLUMN */}
+          <div className="space-y-6">
+            {/* AT A GLANCE */}
+            <div className="rounded-2xl bg-gray-100 shadow-md p-7 flex flex-col items-center justify-center h-full min-h-[200px]">
+              <div className="text-lg font-bold mb-2 text-gray-900">
+                At a glance
+              </div>
+              <div className="text-base font-medium text-gray-800 mb-2">
+                Modules Completed
+              </div>
+              <div className="flex items-end gap-1 mb-3">
+                <span className="text-4xl font-bold text-purple-600">
+                  {summaryStats.completedModules}
+                </span>
+                <span className="text-2xl text-gray-400 font-bold">/</span>
+                <span className="text-2xl font-bold text-purple-400">
+                  {summaryStats.totalModules}
+                </span>
+              </div>
+              {/* Progress bar */}
+              <div className="w-full bg-purple-100 h-3 rounded-full">
+                <div
+                  className="bg-purple-600 h-3 rounded-full transition-all duration-500"
+                  style={{
+                    width: `${
+                      summaryStats.totalModules > 0
+                        ? (summaryStats.completedModules /
+                            summaryStats.totalModules) *
+                          100
+                        : 0
+                    }%`,
+                  }}
+                ></div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
