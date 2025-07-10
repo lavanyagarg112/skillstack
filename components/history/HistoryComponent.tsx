@@ -15,14 +15,12 @@ export default function HistoryComponent() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch("/api/activity", { credentials: "include" })
+    fetch("/api/history", { credentials: "include" })
       .then((res) => {
         if (!res.ok) throw new Error(`Status ${res.status}`);
         return res.json();
       })
-      .then((json: { logs: ActivityLog[] }) => {
-        setLogs(json.logs);
-      })
+      .then(({ logs }: { logs: ActivityLog[] }) => setLogs(logs))
       .catch((err) => {
         console.error(err);
         setError("Failed to load history.");
@@ -30,31 +28,46 @@ export default function HistoryComponent() {
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <p>Loading history…</p>;
-  if (error) return <p className="text-red-600">{error}</p>;
-  if (!logs.length) return <p>No history available yet.</p>;
+  if (loading) return <p className="text-center py-8">Loading history…</p>;
+  if (error) return <p className="text-center text-red-600 py-8">{error}</p>;
+  if (!logs.length) return <p className="text-center py-8">No history yet.</p>;
+
+  // sort newest first
+  const sorted = [...logs].sort(
+    (a, b) =>
+      new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+  );
 
   return (
-    <div className="space-y-4">
-      {logs.map((log) => (
-        <div key={log.id} className="p-4 bg-white rounded-lg shadow-sm border">
-          <div className="flex justify-between items-start">
-            <div>
-              <h3 className="font-medium text-lg text-purple-700">
-                {log.action.replace(/_/g, " ")}
+    <ul className="relative border-l-2 border-gray-200 dark:border-gray-700">
+      {sorted.map((log) => {
+        const title = log.action.replace(/_/g, " ");
+        const time = new Date(log.created_at).toLocaleString();
+
+        return (
+          <li key={log.id} className="mb-8 ml-6">
+            <span className="absolute flex items-center justify-center w-4 h-4 bg-purple-600 rounded-full -left-2 ring-4 ring-white dark:ring-gray-900"></span>
+
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-medium text-purple-700 capitalize">
+                {title}
               </h3>
-              {Object.keys(log.metadata).length > 0 && (
-                <pre className="mt-1 text-sm text-gray-600 whitespace-pre-wrap">
+              <time className="text-xs text-gray-400">{time}</time>
+            </div>
+
+            {Object.keys(log.metadata).length > 0 && (
+              <details className="mt-1 text-sm text-gray-600">
+                <summary className="cursor-pointer hover:text-purple-600">
+                  View details
+                </summary>
+                <pre className="mt-1 bg-gray-50 p-2 rounded text-xs overflow-auto">
                   {JSON.stringify(log.metadata, null, 2)}
                 </pre>
-              )}
-            </div>
-            <span className="text-xs text-gray-500">
-              {new Date(log.created_at).toLocaleString()}
-            </span>
-          </div>
-        </div>
-      ))}
-    </div>
+              </details>
+            )}
+          </li>
+        );
+      })}
+    </ul>
   );
 }
