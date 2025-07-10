@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 interface ModuleChatbotProps {
   courseId: string;
   moduleId: string;
+  isEnrolled: boolean;
 }
 
 type ChatMessage = { type: "user" | "assistant"; content: string };
@@ -12,6 +13,7 @@ type ChatMessage = { type: "user" | "assistant"; content: string };
 export default function ModuleChatbot({
   courseId,
   moduleId,
+  isEnrolled,
 }: ModuleChatbotProps) {
   const [question, setQuestion] = useState("");
   const [chat, setChat] = useState<
@@ -19,6 +21,10 @@ export default function ModuleChatbot({
   >([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  if (!isEnrolled) {
+    return null;
+  }
 
   useEffect(() => {
     const fetchLogs = async () => {
@@ -59,7 +65,7 @@ export default function ModuleChatbot({
       const res = await fetch("/api/chatbot/ask", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials: "include", // for cookies/session
+        credentials: "include",
         body: JSON.stringify({ courseId, moduleId, question }),
       });
       const data = await res.json();
@@ -82,10 +88,11 @@ export default function ModuleChatbot({
   return (
     <div className="bg-gray-50 border rounded-xl p-5 shadow">
       <h3 className="font-bold text-lg mb-2">Module Assistant</h3>
+      <div>Note: Bot does not have access to course materials.</div>
       <div className="min-h-[120px] max-h-60 overflow-y-auto flex flex-col gap-3 mb-4">
         {chat.length === 0 && (
           <div className="text-gray-400 text-sm">
-            Ask a question about this module!
+            Ask a question about this course!
           </div>
         )}
         {chat.map((msg, i) => (

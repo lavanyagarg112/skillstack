@@ -247,7 +247,11 @@ export default function ModuleDetail({ courseId, moduleId, isAdmin }: Props) {
           )}
         </div>
         <div className="mt-8">
-          <ModuleChatBot courseId={courseId} moduleId={moduleId} />
+          <ModuleChatBot
+            courseId={courseId}
+            moduleId={moduleId}
+            isEnrolled={enrolled}
+          />
         </div>
       </div>
     );
