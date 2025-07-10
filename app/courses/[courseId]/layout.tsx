@@ -11,7 +11,7 @@ export default async function CourseLayout({
 }) {
   const user = await getAuthUser();
   const isAdmin = user?.organisation?.role === "admin";
-  const { courseId } = params;
+  const { courseId } = await params;
 
   const response = {
     id: courseId,
