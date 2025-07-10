@@ -1,8 +1,12 @@
+"use client";
+
+import { useAuth } from "@/context/AuthContext";
+import HistoryComponent from "@/components/history/HistoryComponent";
 export default function HistoryPage() {
-  return (
-    <div>
-      <h1>History</h1>
-      <p>History page content goes here.</p>
-    </div>
-  );
+  const { user } = useAuth();
+
+  if (!user || !user.hasCompletedOnboarding) {
+    return null;
+  }
+  return <HistoryComponent />;
 }
