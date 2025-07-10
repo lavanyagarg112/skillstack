@@ -29,6 +29,7 @@ const menuSections = [
     items: [
       { label: "My Organisation", href: "/organisation", icon: UsersIcon },
       { label: "Users", href: "/users", icon: UsersIcon },
+      { label: "Chat History", href: "/chathistory", icon: ClockIcon },
       { label: "History", href: "/history", icon: ClockIcon },
       { label: "Settings", href: "/settings", icon: CogIcon },
     ],
