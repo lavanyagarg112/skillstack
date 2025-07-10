@@ -1,11 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface ModuleChatbotProps {
   courseId: string;
   moduleId: string;
 }
+
+type ChatMessage = { type: "user" | "assistant"; content: string };
 
 export default function ModuleChatbot({
   courseId,
@@ -18,13 +20,36 @@ export default function ModuleChatbot({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  useEffect(() => {
+    const fetchLogs = async () => {
+      try {
+        const res = await fetch("/api/chatbot/logs", {
+          credentials: "include",
+        });
+        const data = await res.json();
+        if (data.success && Array.isArray(data.logs)) {
+          const logMessages: ChatMessage[] = [];
+          data.logs
+            .reverse()
+            .forEach((log: { question: string; answer: string }) => {
+              logMessages.push({ type: "user", content: log.question });
+              logMessages.push({ type: "assistant", content: log.answer });
+            });
+          setChat(logMessages);
+        }
+      } catch (err) {
+        // Ignore errors in loading logs
+      }
+    };
+    fetchLogs();
+  }, []);
+
   const sendQuestion = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!question.trim()) return;
     setError(null);
     setLoading(true);
 
-    // Add user question to chat
     setChat((prev) => [...prev, { type: "user", content: question }]);
 
     try {
