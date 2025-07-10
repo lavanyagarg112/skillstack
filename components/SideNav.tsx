@@ -28,6 +28,7 @@ const menuSections = [
   {
     heading: "Management",
     items: [
+      { label: "Chat History", href: "/chathistory", icon: ClockIcon },
       { label: "History", href: "/history", icon: ClockIcon },
       { label: "Settings", href: "/settings", icon: CogIcon },
     ],
