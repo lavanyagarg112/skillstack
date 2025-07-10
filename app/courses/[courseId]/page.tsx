@@ -8,7 +8,7 @@ export default async function CoursePage({
 }) {
   const user = await getAuthUser();
   const isAdmin = user?.organisation?.role === "admin";
-  const { courseId } = await params;
+  const { courseId } = params;
 
   return <ModuleList courseId={courseId} isEditMode={isAdmin} />;
 }

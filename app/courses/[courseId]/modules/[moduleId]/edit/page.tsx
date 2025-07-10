@@ -8,7 +8,7 @@ export default async function EditModulePage({
   params: { courseId: string; moduleId: string };
 }) {
   const user = await getAuthUser();
-  const { courseId, moduleId } = await params;
+  const { courseId, moduleId } = params;
   if (!courseId || !moduleId) {
     redirect("/courses");
   }
