@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useEffect } from "react";
-import { useParams } from "next/navigation";
 import { useState } from "react";
+import ModuleChatBot from "@/components/chatbot/ModuleChatBot";
 
 export interface QuizOption {
   id: number;
@@ -31,14 +31,14 @@ export interface ModuleDetailData {
 }
 
 interface Props {
+  courseId: string;
   moduleId: string;
   isAdmin: boolean;
 }
 
-export default function ModuleDetail({ moduleId, isAdmin }: Props) {
+export default function ModuleDetail({ courseId, moduleId, isAdmin }: Props) {
   const [data, setData] = React.useState<ModuleDetailData | null>(null);
   const [enrolled, setEnrolled] = React.useState<boolean>(false);
-  const { courseId } = useParams() as { courseId: string };
   const [answers, setAnswers] = useState<Record<number, number | number[]>>({});
   const [moduleStatus, setModuleStatus] = useState<string | null>(null);
   const [courseCompleted, setCourseCompleted] = useState<boolean>(false);
@@ -175,75 +175,80 @@ export default function ModuleDetail({ moduleId, isAdmin }: Props) {
   if (data.module_type !== "quiz") {
     const finalUrl = `http://localhost:4000${data.file_url}`;
     return (
-      <div className="space-y-4">
-        <div className="flex gap-4 mb-6">
-          {moduleStatus === "not_started" && !courseCompleted && (
-            <button
-              onClick={async () => {
-                await fetch("/api/courses/mark-module-started", {
-                  method: "POST",
-                  credentials: "include",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ moduleId: data.id }),
-                });
-                alert("Module started!");
-                setModuleStatus("in_progress");
-              }}
-              className="px-4 py-2 bg-blue-600 text-white rounded"
-            >
-              Start Module
-            </button>
+      <div>
+        <div className="space-y-4">
+          <div className="flex gap-4 mb-6">
+            {moduleStatus === "not_started" && !courseCompleted && (
+              <button
+                onClick={async () => {
+                  await fetch("/api/courses/mark-module-started", {
+                    method: "POST",
+                    credentials: "include",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ moduleId: data.id }),
+                  });
+                  alert("Module started!");
+                  setModuleStatus("in_progress");
+                }}
+                className="px-4 py-2 bg-blue-600 text-white rounded"
+              >
+                Start Module
+              </button>
+            )}
+
+            {moduleStatus === "in_progress" && !courseCompleted && (
+              <button
+                onClick={async () => {
+                  await fetch("/api/courses/mark-module-completed", {
+                    method: "POST",
+                    credentials: "include",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ moduleId: data.id }),
+                  });
+                  alert("Module completed!");
+                  setModuleStatus("completed");
+                }}
+                className="px-4 py-2 bg-red-600 text-white rounded"
+              >
+                Mark as Completed
+              </button>
+            )}
+
+            {moduleStatus === "completed" && !courseCompleted && (
+              <button
+                onClick={async () => {
+                  await fetch("/api/courses/mark-module-started", {
+                    method: "POST",
+                    credentials: "include",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ moduleId: data.id }),
+                  });
+                  alert("Module restarted!");
+                  setModuleStatus("in_progress");
+                }}
+                className="px-4 py-2 bg-green-600 text-white rounded"
+              >
+                Module has been completed. Reset Module Progress
+              </button>
+            )}
+          </div>
+          <h2 className="text-3xl font-bold text-purple-600">{data.title}</h2>
+          <p>{data.description}</p>
+
+          {data.module_type === "video" && data.file_url && (
+            <video controls src={finalUrl} className="w-full rounded-lg" />
           )}
 
-          {moduleStatus === "in_progress" && !courseCompleted && (
-            <button
-              onClick={async () => {
-                await fetch("/api/courses/mark-module-completed", {
-                  method: "POST",
-                  credentials: "include",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ moduleId: data.id }),
-                });
-                alert("Module completed!");
-                setModuleStatus("completed");
-              }}
-              className="px-4 py-2 bg-red-600 text-white rounded"
-            >
-              Mark as Completed
-            </button>
-          )}
-
-          {moduleStatus === "completed" && !courseCompleted && (
-            <button
-              onClick={async () => {
-                await fetch("/api/courses/mark-module-started", {
-                  method: "POST",
-                  credentials: "include",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ moduleId: data.id }),
-                });
-                alert("Module restarted!");
-                setModuleStatus("in_progress");
-              }}
-              className="px-4 py-2 bg-green-600 text-white rounded"
-            >
-              Module has been completed. Reset Module Progress
-            </button>
+          {["pdf", "slide"].includes(data.module_type) && data.file_url && (
+            <iframe
+              src={finalUrl}
+              className="w-full h-[600px] rounded-lg border"
+            />
           )}
         </div>
-        <h2 className="text-3xl font-bold text-purple-600">{data.title}</h2>
-        <p>{data.description}</p>
-
-        {data.module_type === "video" && data.file_url && (
-          <video controls src={finalUrl} className="w-full rounded-lg" />
-        )}
-
-        {["pdf", "slide"].includes(data.module_type) && data.file_url && (
-          <iframe
-            src={finalUrl}
-            className="w-full h-[600px] rounded-lg border"
-          />
-        )}
+        <div className="mt-8">
+          <ModuleChatBot courseId={courseId} moduleId={moduleId} />
+        </div>
       </div>
     );
   }

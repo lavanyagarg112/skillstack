@@ -12,9 +12,8 @@ export default async function ModulePage({
   const { courseId, moduleId } = await params;
 
   return (
-    <div className="max-w-3xl mx-auto bg-white p-6 rounded shadow space-y-8">
-      <ModuleDetail moduleId={moduleId} isAdmin={isAdmin} />
-      <ModuleChatBot courseId={courseId} moduleId={moduleId} />
+    <div className="max-w-3xl mx-auto bg-white p-6 rounded">
+      <ModuleDetail courseId={courseId} moduleId={moduleId} isAdmin={isAdmin} />
     </div>
   );
 }
