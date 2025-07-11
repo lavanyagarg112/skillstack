@@ -6,7 +6,10 @@ interface Props {
   onSelect: (roadmap: Roadmap) => void;
   onDelete: (roadmapId: number) => void;
   onCreateNew: () => void;
-  onAutoGenerate: () => Promise<{ roadmap?: Roadmap; modulesAdded?: number }>;
+  onAutoGenerate: () => Promise<{
+    roadmap?: Roadmap;
+    modulesAdded?: number;
+  } | void>;
 }
 
 export default function RoadmapList({
