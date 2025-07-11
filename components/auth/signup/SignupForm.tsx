@@ -22,6 +22,11 @@ export default function SignupForm() {
       setError("Passwords do not match");
       return;
     }
+
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters long");
+      return;
+    }
     setLoading(true);
     try {
       const res = await fetch("/api/signup", {
@@ -119,6 +124,9 @@ export default function SignupForm() {
             className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-purple-300 focus:border-purple-500 outline-none transition-all"
             required
           />
+          <p className="text-xs text-gray-500 mt-1">
+            Password must be at least 8 characters long
+          </p>
         </div>
 
         <div>
