@@ -296,7 +296,7 @@ export default function RoadmapEditor({ roadmap, onBack, onUpdate }: Props) {
                     <span className="text-sm font-medium text-gray-500">
                       #{index + 1}
                     </span>
-                    <div className="flex-1">
+                    <div className="flex-1 space-y-2">
                       <div className="flex items-center space-x-2">
                         <h4 className="font-medium">{item.module_title}</h4>
                         {isAccessible ? (
