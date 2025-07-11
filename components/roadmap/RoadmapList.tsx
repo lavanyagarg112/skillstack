@@ -77,8 +77,15 @@ export default function RoadmapList({
       </div>
 
       {autoGenMessage && (
-        <div className="bg-yellow-100 text-yellow-800 p-4 rounded">
-          {autoGenMessage}
+        <div className="bg-yellow-100 text-yellow-800 p-4 rounded flex justify-between items-center">
+          <span>{autoGenMessage}</span>
+          <button
+            onClick={() => setAutoGenMessage(null)}
+            className="ml-4 font-bold text-lg leading-none"
+            aria-label="Dismiss"
+          >
+            ×
+          </button>
         </div>
       )}
 
