@@ -14,16 +14,17 @@ export default function RoadmapEditor({ roadmap, onBack, onUpdate }: Props) {
   const [roadmapName, setRoadmapName] = useState(roadmap.name);
   const [items, setItems] = useState<RoadmapItem[]>([]);
   const [availableModules, setAvailableModules] = useState<Module[]>([]);
-  const [channelRecommendations, setChannelRecommendations] = useState<{[key: string]: Module[]}>({});
+  // const [channelRecommendations, setChannelRecommendations] = useState<{[key: string]: Module[]}>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [showModuleSelector, setShowModuleSelector] = useState(false);
-  const [showChannelRecommendations, setShowChannelRecommendations] = useState(false);
+  // const [showChannelRecommendations, setShowChannelRecommendations] =
+  // useState(false);
 
   useEffect(() => {
     fetchRoadmapItems();
     fetchAvailableModules();
-    fetchChannelRecommendations();
+    // fetchChannelRecommendations();
   }, [roadmap.id]);
 
   const fetchRoadmapItems = async () => {
@@ -78,44 +79,44 @@ export default function RoadmapEditor({ roadmap, onBack, onUpdate }: Props) {
     }
   };
 
-  const fetchChannelRecommendations = async () => {
-    try {
-      const response = await fetch("/api/materials/by-user-skills", {
-        credentials: "include",
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        const modules = data.materials || [];
-        
-        // Group modules by channel
-        const groupedByChannel: {[key: string]: Module[]} = {};
-        
-        modules.forEach((module: Module) => {
-          if (module.channel) {
-            const channelName = module.channel.name;
-            if (!groupedByChannel[channelName]) {
-              groupedByChannel[channelName] = [];
-            }
-            groupedByChannel[channelName].push(module);
-          }
-        });
-        
-        // Sort channels by number of modules and limit to top 3 modules per channel
-        const sortedChannels: {[key: string]: Module[]} = {};
-        Object.entries(groupedByChannel)
-          .sort(([,a], [,b]) => b.length - a.length)
-          .forEach(([channel, modules]) => {
-            sortedChannels[channel] = modules.slice(0, 3);
-          });
-        
-        setChannelRecommendations(sortedChannels);
-      }
-    } catch (error) {
-      console.error("Failed to fetch channel recommendations:", error);
-      setChannelRecommendations({});
-    }
-  };
+  // const fetchChannelRecommendations = async () => {
+  //   try {
+  //     const response = await fetch("/api/materials/by-user-skills", {
+  //       credentials: "include",
+  //     });
+
+  //     if (response.ok) {
+  //       const data = await response.json();
+  //       const modules = data.materials || [];
+
+  //       // Group modules by channel
+  //       const groupedByChannel: { [key: string]: Module[] } = {};
+
+  //       modules.forEach((module: Module) => {
+  //         if (module.channel) {
+  //           const channelName = module.channel.name;
+  //           if (!groupedByChannel[channelName]) {
+  //             groupedByChannel[channelName] = [];
+  //           }
+  //           groupedByChannel[channelName].push(module);
+  //         }
+  //       });
+
+  //       // Sort channels by number of modules and limit to top 3 modules per channel
+  //       const sortedChannels: { [key: string]: Module[] } = {};
+  //       Object.entries(groupedByChannel)
+  //         .sort(([, a], [, b]) => b.length - a.length)
+  //         .forEach(([channel, modules]) => {
+  //           sortedChannels[channel] = modules.slice(0, 3);
+  //         });
+
+  //       setChannelRecommendations(sortedChannels);
+  //     }
+  //   } catch (error) {
+  //     console.error("Failed to fetch channel recommendations:", error);
+  //     setChannelRecommendations({});
+  //   }
+  // };
 
   const updateRoadmapName = async () => {
     if (roadmapName.trim() === roadmap.name) return;
@@ -239,7 +240,7 @@ export default function RoadmapEditor({ roadmap, onBack, onUpdate }: Props) {
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-medium">Learning Modules</h3>
           <div className="space-x-2">
-            <button
+            {/* <button
               onClick={() => setShowChannelRecommendations(true)}
               className="px-3 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded text-sm"
               title="View channel-based recommendations"
@@ -252,7 +253,7 @@ export default function RoadmapEditor({ roadmap, onBack, onUpdate }: Props) {
               title="Refresh enrollment status"
             >
               🔄 Refresh
-            </button>
+            </button> */}
             <button
               onClick={() => setShowModuleSelector(true)}
               className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded"
@@ -335,7 +336,9 @@ export default function RoadmapEditor({ roadmap, onBack, onUpdate }: Props) {
                         )}
                       </div>
                       <div className="flex items-center space-x-2 text-sm text-gray-600">
-                        <span>{item.course_name} • {item.module_type}</span>
+                        <span>
+                          {item.course_name} • {item.module_type}
+                        </span>
                         {(item.channel || item.level) && (
                           <div className="flex gap-1">
                             {item.channel && (
@@ -445,7 +448,9 @@ export default function RoadmapEditor({ roadmap, onBack, onUpdate }: Props) {
                             )}
                           </div>
                           <div className="flex items-center space-x-2 text-sm text-gray-600">
-                            <span>{module.course_name} • {module.module_type}</span>
+                            <span>
+                              {module.course_name} • {module.module_type}
+                            </span>
                             {(module.channel || module.level) && (
                               <div className="flex gap-1">
                                 {module.channel && (
@@ -469,8 +474,9 @@ export default function RoadmapEditor({ roadmap, onBack, onUpdate }: Props) {
                           {module.skills && (
                             <p className="text-xs text-gray-500 mt-1">
                               Skills:{" "}
-                              {module.skills.filter((skill) => skill).join(", ") ||
-                                "None"}
+                              {module.skills
+                                .filter((skill) => skill)
+                                .join(", ") || "None"}
                             </p>
                           )}
                         </div>
@@ -489,11 +495,13 @@ export default function RoadmapEditor({ roadmap, onBack, onUpdate }: Props) {
         </div>
       )}
 
-      {showChannelRecommendations && (
+      {/* {showChannelRecommendations && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 max-w-4xl w-full max-h-96 overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-medium">Channel-Based Recommendations</h3>
+              <h3 className="text-lg font-medium">
+                Channel-Based Recommendations
+              </h3>
               <button
                 onClick={() => setShowChannelRecommendations(false)}
                 className="text-gray-500 hover:text-gray-700"
@@ -503,71 +511,90 @@ export default function RoadmapEditor({ roadmap, onBack, onUpdate }: Props) {
             </div>
 
             {Object.keys(channelRecommendations).length === 0 ? (
-              <p className="text-gray-600">No channel-based recommendations available.</p>
+              <p className="text-gray-600">
+                No channel-based recommendations available.
+              </p>
             ) : (
               <div className="space-y-6">
-                {Object.entries(channelRecommendations).map(([channelName, modules]) => (
-                  <div key={channelName} className="border rounded-lg p-4">
-                    <h4 className="font-medium mb-3 flex items-center">
-                      <span className="inline-flex items-center bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm font-medium mr-2">
-                        {channelName}
-                      </span>
-                      <span className="text-sm text-gray-600">({modules.length} modules)</span>
-                    </h4>
-                    <div className="space-y-2">
-                      {modules
-                        .filter(module => !items.some(item => item.module_id === module.id))
-                        .map(module => (
-                          <div
-                            key={module.id}
-                            className="flex items-center justify-between p-3 bg-gray-50 rounded hover:bg-gray-100"
-                          >
-                            <div className="flex-1">
-                              <div className="flex items-center space-x-2">
-                                <h5 className="font-medium">{module.module_title}</h5>
-                                {module.level && (
-                                  <span className="inline-flex items-center bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
-                                    {module.level.name}
-                                  </span>
-                                )}
-                                {module.matching_skills && module.matching_skills > 0 && (
-                                  <span className="inline-flex items-center bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-medium">
-                                    {module.matching_skills} skills match
-                                  </span>
+                {Object.entries(channelRecommendations).map(
+                  ([channelName, modules]) => (
+                    <div key={channelName} className="border rounded-lg p-4">
+                      <h4 className="font-medium mb-3 flex items-center">
+                        <span className="inline-flex items-center bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm font-medium mr-2">
+                          {channelName}
+                        </span>
+                        <span className="text-sm text-gray-600">
+                          ({modules.length} modules)
+                        </span>
+                      </h4>
+                      <div className="space-y-2">
+                        {modules
+                          .filter(
+                            (module) =>
+                              !items.some(
+                                (item) => item.module_id === module.id
+                              )
+                          )
+                          .map((module) => (
+                            <div
+                              key={module.id}
+                              className="flex items-center justify-between p-3 bg-gray-50 rounded hover:bg-gray-100"
+                            >
+                              <div className="flex-1">
+                                <div className="flex items-center space-x-2">
+                                  <h5 className="font-medium">
+                                    {module.module_title}
+                                  </h5>
+                                  {module.level && (
+                                    <span className="inline-flex items-center bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
+                                      {module.level.name}
+                                    </span>
+                                  )}
+                                  {module.matching_skills &&
+                                    module.matching_skills > 0 && (
+                                      <span className="inline-flex items-center bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-medium">
+                                        {module.matching_skills} skills match
+                                      </span>
+                                    )}
+                                </div>
+                                <p className="text-sm text-gray-600 mt-1">
+                                  {module.course_name} • {module.module_type}
+                                </p>
+                                {module.description && (
+                                  <p className="text-xs text-gray-500 mt-1">
+                                    {module.description}
+                                  </p>
                                 )}
                               </div>
-                              <p className="text-sm text-gray-600 mt-1">
-                                {module.course_name} • {module.module_type}
-                              </p>
-                              {module.description && (
-                                <p className="text-xs text-gray-500 mt-1">
-                                  {module.description}
-                                </p>
-                              )}
+                              <button
+                                onClick={() => {
+                                  addModule(module.id);
+                                  setShowChannelRecommendations(false);
+                                }}
+                                className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm ml-2"
+                              >
+                                Add to Roadmap
+                              </button>
                             </div>
-                            <button
-                              onClick={() => {
-                                addModule(module.id);
-                                setShowChannelRecommendations(false);
-                              }}
-                              className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm ml-2"
-                            >
-                              Add to Roadmap
-                            </button>
-                          </div>
-                        ))
-                      }
-                      {modules.filter(module => !items.some(item => item.module_id === module.id)).length === 0 && (
-                        <p className="text-sm text-gray-500 italic">All modules from this channel are already in your roadmap.</p>
-                      )}
+                          ))}
+                        {modules.filter(
+                          (module) =>
+                            !items.some((item) => item.module_id === module.id)
+                        ).length === 0 && (
+                          <p className="text-sm text-gray-500 italic">
+                            All modules from this channel are already in your
+                            roadmap.
+                          </p>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  )
+                )}
               </div>
             )}
           </div>
         </div>
-      )}
+      )} */}
     </div>
   );
 }
