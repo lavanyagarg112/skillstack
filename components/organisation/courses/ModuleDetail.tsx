@@ -329,9 +329,9 @@ export default function ModuleDetail({ courseId, moduleId, isAdmin }: Props) {
     return (
       <div className="space-y-6">
         <h2 className="text-3xl font-bold">{data.title} — Results</h2>
-        {results.map((r) => (
+        {results.map((r, index) => (
           <div key={r.questionId} className="p-4 border rounded space-y-2">
-            <p className="font-medium">Question {r.questionId}</p>
+            <p className="font-medium">Question {index + 1}</p>
             <p>
               Your answers:&nbsp;
               {r.selectedOptions.map((o) => o.text).join(", ")}
@@ -370,14 +370,16 @@ export default function ModuleDetail({ courseId, moduleId, isAdmin }: Props) {
           answers will be lost
         </p>
       )}
-      {quiz?.questions.map((q) => (
+      {quiz?.questions.map((q, index) => (
         <div key={q.id} className="space-y-2">
-          <p className="font-medium">{q.question_text}</p>
+          <p className="font-medium">
+            {index + 1}. {q.question_text}
+          </p>
           {q.options.map((opt) => (
             <label key={opt.id} className="flex items-center space-x-2">
               <input
                 type={q.question_type === "true_false" ? "radio" : "checkbox"}
-                name={`q-${q.id}`}
+                name={`q-${index + 1}`}
                 value={opt.id}
                 checked={
                   q.question_type === "true_false"
