@@ -1,5 +1,3 @@
-"use client";
-
 import { useState } from "react";
 import { Roadmap } from "./types";
 
@@ -8,15 +6,27 @@ interface Props {
   onSelect: (roadmap: Roadmap) => void;
   onDelete: (roadmapId: number) => void;
   onCreateNew: () => void;
-  onAutoGenerate: () => void;
+  onAutoGenerate: () => Promise<{
+    roadmap?: Roadmap;
+    modulesAdded?: number;
+  } | void>;
+  isAiEnabled: boolean;
 }
 
-export default function RoadmapList({ roadmaps, onSelect, onDelete, onCreateNew, onAutoGenerate }: Props) {
+export default function RoadmapList({
+  roadmaps,
+  onSelect,
+  onDelete,
+  onCreateNew,
+  onAutoGenerate,
+  isAiEnabled,
+}: Props) {
   const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [autoGenMessage, setAutoGenMessage] = useState<string | null>(null);
 
   const handleDelete = async (roadmapId: number) => {
     if (!confirm("Are you sure you want to delete this roadmap?")) return;
-    
+
     setDeletingId(roadmapId);
     try {
       await onDelete(roadmapId);
@@ -25,17 +35,45 @@ export default function RoadmapList({ roadmaps, onSelect, onDelete, onCreateNew,
     }
   };
 
+  const handleAutoGenerate = async () => {
+    setAutoGenMessage(null);
+    try {
+      const result = await onAutoGenerate();
+      if (
+        !result ||
+        (result.modulesAdded !== undefined && result.modulesAdded === 0)
+      ) {
+        setAutoGenMessage(
+          "No new modules to recommend. You can create it manually if you want."
+        );
+      }
+    } catch (err: any) {
+      const msg = err?.message || "Failed to auto-generate roadmap.";
+      if (msg.toLowerCase().includes("same set of modules")) {
+        setAutoGenMessage(
+          "No new modules to recommend. You can create it manually if you want."
+        );
+      } else {
+        setAutoGenMessage(msg);
+      }
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-semibold text-purple-600">My Learning Roadmaps</h2>
+        <h2 className="text-2xl font-semibold text-purple-600">
+          My Learning Roadmaps
+        </h2>
         <div className="space-x-2">
-          <button
-            onClick={onAutoGenerate}
-            className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded"
-          >
-            ✨ Auto-Generate
-          </button>
+          {isAiEnabled && (
+            <button
+              onClick={handleAutoGenerate}
+              className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded"
+            >
+              ✨ Auto-Generate
+            </button>
+          )}
           <button
             onClick={onCreateNew}
             className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded"
@@ -45,16 +83,31 @@ export default function RoadmapList({ roadmaps, onSelect, onDelete, onCreateNew,
         </div>
       </div>
 
+      {autoGenMessage && (
+        <div className="bg-yellow-100 text-yellow-800 p-4 rounded flex justify-between items-center">
+          <span>{autoGenMessage}</span>
+          <button
+            onClick={() => setAutoGenMessage(null)}
+            className="ml-4 font-bold text-lg leading-none"
+            aria-label="Dismiss"
+          >
+            ×
+          </button>
+        </div>
+      )}
+
       {roadmaps.length === 0 ? (
         <div className="text-center py-8">
           <p className="text-gray-600 mb-4">You don't have any roadmaps yet.</p>
           <div className="space-x-3">
-            <button
-              onClick={onAutoGenerate}
-              className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg"
-            >
-              ✨ Auto-Generate Roadmap
-            </button>
+            {isAiEnabled && (
+              <button
+                onClick={handleAutoGenerate}
+                className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg"
+              >
+                ✨ Auto-Generate Roadmap
+              </button>
+            )}
             <button
               onClick={onCreateNew}
               className="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg"
