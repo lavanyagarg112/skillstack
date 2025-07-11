@@ -10,6 +10,7 @@ interface Props {
     roadmap?: Roadmap;
     modulesAdded?: number;
   } | void>;
+  isAiEnabled: boolean;
 }
 
 export default function RoadmapList({
@@ -18,6 +19,7 @@ export default function RoadmapList({
   onDelete,
   onCreateNew,
   onAutoGenerate,
+  isAiEnabled,
 }: Props) {
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [autoGenMessage, setAutoGenMessage] = useState<string | null>(null);
@@ -64,12 +66,14 @@ export default function RoadmapList({
           My Learning Roadmaps
         </h2>
         <div className="space-x-2">
-          <button
-            onClick={handleAutoGenerate}
-            className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded"
-          >
-            ✨ Auto-Generate
-          </button>
+          {isAiEnabled && (
+            <button
+              onClick={handleAutoGenerate}
+              className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded"
+            >
+              ✨ Auto-Generate
+            </button>
+          )}
           <button
             onClick={onCreateNew}
             className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded"
@@ -96,12 +100,14 @@ export default function RoadmapList({
         <div className="text-center py-8">
           <p className="text-gray-600 mb-4">You don't have any roadmaps yet.</p>
           <div className="space-x-3">
-            <button
-              onClick={handleAutoGenerate}
-              className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg"
-            >
-              ✨ Auto-Generate Roadmap
-            </button>
+            {isAiEnabled && (
+              <button
+                onClick={handleAutoGenerate}
+                className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg"
+              >
+                ✨ Auto-Generate Roadmap
+              </button>
+            )}
             <button
               onClick={onCreateNew}
               className="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg"

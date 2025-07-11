@@ -14,6 +14,7 @@ export interface OrganisationMembership {
   id: number;
   organisationname: string;
   role: OrgRole;
+  ai_enabled: boolean;
 }
 
 export interface User {

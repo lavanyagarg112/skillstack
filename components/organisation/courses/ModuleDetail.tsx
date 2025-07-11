@@ -34,9 +34,15 @@ interface Props {
   courseId: string;
   moduleId: string;
   isAdmin: boolean;
+  isAiEnabled: boolean;
 }
 
-export default function ModuleDetail({ courseId, moduleId, isAdmin }: Props) {
+export default function ModuleDetail({
+  courseId,
+  moduleId,
+  isAdmin,
+  isAiEnabled,
+}: Props) {
   const [data, setData] = React.useState<ModuleDetailData | null>(null);
   const [enrolled, setEnrolled] = React.useState<boolean>(false);
   const [answers, setAnswers] = useState<Record<number, number | number[]>>({});
@@ -247,11 +253,13 @@ export default function ModuleDetail({ courseId, moduleId, isAdmin }: Props) {
           )}
         </div>
         <div className="mt-8">
-          <ModuleChatBot
-            courseId={courseId}
-            moduleId={moduleId}
-            isEnrolled={enrolled}
-          />
+          {isAiEnabled && (
+            <ModuleChatBot
+              courseId={courseId}
+              moduleId={moduleId}
+              isEnrolled={enrolled}
+            />
+          )}
         </div>
       </div>
     );
