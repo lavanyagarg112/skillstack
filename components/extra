@@ -28,6 +28,7 @@ const menuSections = [
   {
     heading: "Management",
     items: [
+      // Chat History will be conditionally filtered
       { label: "Chat History", href: "/chathistory", icon: ClockIcon },
       { label: "History", href: "/history", icon: ClockIcon },
       { label: "Settings", href: "/settings", icon: CogIcon },
@@ -60,6 +61,7 @@ export default function SideNav() {
 
         <nav className="mt-6 px-4 space-y-6">
           {menuSections.map((section) => {
+            // Filter out Chat History if AI is disabled
             const filteredItems = section.items.filter(
               (item) => item.label !== "Chat History" || isAiEnabled
             );

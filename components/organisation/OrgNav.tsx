@@ -44,6 +44,8 @@ export default function OrgNav() {
   const avatarUrl = `https://avatar.iran.liara.run/username?username=${firstName}+${lastName}&background=f4d9b2&color=FF9800`;
   const [imgSrc, setImgSrc] = useState(avatarUrl);
 
+  const isAiEnabled = user.organisation?.ai_enabled;
+
   return (
     <aside className="sticky top-0 w-64 h-screen bg-white border-r border-gray-200 flex flex-col justify-between overflow-y-auto">
       <div>
@@ -58,40 +60,45 @@ export default function OrgNav() {
         </Link>
 
         <nav className="mt-6 px-4 space-y-6">
-          {menuSections.map((section) => (
-            <div key={section.heading}>
-              <p className="text-xs uppercase text-gray-400 tracking-wide px-2 mb-2">
-                {section.heading}
-              </p>
-              <ul className="space-y-1">
-                {section.items.map(({ label, href, icon: Icon }) => {
-                  const isActive = path === href;
-                  return (
-                    <li key={href}>
-                      <Link
-                        href={href}
-                        className={`flex items-center px-2 py-2 rounded-md transition-colors
-                          ${
-                            isActive
-                              ? "bg-purple-100 text-purple-700"
-                              : "text-gray-700 hover:bg-gray-100 hover:text-purple-600"
-                          }`}
-                      >
-                        <Icon
-                          className={`h-5 w-5 flex-shrink-0 ${
-                            isActive ? "text-purple-600" : "text-gray-400"
-                          }`}
-                        />
-                        <span className="ml-3 text-sm font-medium">
-                          {label}
-                        </span>
-                      </Link>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-          ))}
+          {menuSections.map((section) => {
+            const filteredItems = section.items.filter(
+              (item) => item.label !== "Chat History" || isAiEnabled
+            );
+            return (
+              <div key={section.heading}>
+                <p className="text-xs uppercase text-gray-400 tracking-wide px-2 mb-2">
+                  {section.heading}
+                </p>
+                <ul className="space-y-1">
+                  {filteredItems.map(({ label, href, icon: Icon }) => {
+                    const isActive = path === href;
+                    return (
+                      <li key={href}>
+                        <Link
+                          href={href}
+                          className={`flex items-center px-2 py-2 rounded-md transition-colors
+                            ${
+                              isActive
+                                ? "bg-purple-100 text-purple-700"
+                                : "text-gray-700 hover:bg-gray-100 hover:text-purple-600"
+                            }`}
+                        >
+                          <Icon
+                            className={`h-5 w-5 flex-shrink-0 {
+                              isActive ? "text-purple-600" : "text-gray-400"
+                            }`}
+                          />
+                          <span className="ml-3 text-sm font-medium">
+                            {label}
+                          </span>
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            );
+          })}
         </nav>
       </div>
 

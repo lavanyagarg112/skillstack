@@ -12,6 +12,12 @@ export default function RoadmapPage() {
   const [selectedRoadmap, setSelectedRoadmap] = useState<Roadmap | null>(null);
   const [loading, setLoading] = useState(true);
 
+  let isAiEnabled = user?.organisation?.ai_enabled;
+
+  if (isAiEnabled === undefined) {
+    isAiEnabled = false;
+  }
+
   if (!user || !user.hasCompletedOnboarding) {
     return null;
   }
@@ -137,6 +143,7 @@ export default function RoadmapPage() {
       onDelete={deleteRoadmap}
       onCreateNew={createNewRoadmap}
       onAutoGenerate={autoGenerateRoadmap}
+      isAiEnabled={isAiEnabled}
     />
   );
 }

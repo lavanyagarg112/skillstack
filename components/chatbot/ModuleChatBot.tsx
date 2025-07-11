@@ -16,11 +16,11 @@ export default function ModuleChatbot({
   isEnrolled,
 }: ModuleChatbotProps) {
   const [question, setQuestion] = useState("");
-  const [chat, setChat] = useState<
-    { type: "user" | "assistant"; content: string }[]
-  >([]);
+  const [chat, setChat] = useState<ChatMessage[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [clearing, setClearing] = useState(false);
+  const [clearError, setClearError] = useState<string | null>(null);
 
   if (!isEnrolled) {
     return null;
@@ -46,12 +46,12 @@ export default function ModuleChatbot({
             });
           setChat(logMessages);
         }
-      } catch (err) {
-        // Ignore errors in loading logs
+      } catch {
+        // Ignore load errors
       }
     };
     fetchLogs();
-  }, []);
+  }, [courseId, moduleId]);
 
   const sendQuestion = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,7 +70,7 @@ export default function ModuleChatbot({
       });
       const data = await res.json();
 
-      if (data?.success && data.answer) {
+      if (data.success && data.answer) {
         setChat((prev) => [
           ...prev,
           { type: "assistant", content: data.answer },
@@ -78,17 +78,47 @@ export default function ModuleChatbot({
       } else {
         setError(data.message || "Something went wrong.");
       }
-    } catch (err: any) {
+    } catch {
       setError("Failed to get response. Please try again.");
     }
     setLoading(false);
     setQuestion("");
   };
 
+  const clearHistory = async () => {
+    if (!confirm("Clear all chat history for this module?")) return;
+    setClearError(null);
+    setClearing(true);
+    try {
+      const res = await fetch("/api/chatbot/module-log", {
+        method: "DELETE",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ moduleId }),
+      });
+      if (!res.ok) throw new Error("Failed to clear history");
+      setChat([]);
+    } catch (err: any) {
+      setClearError(err.message || "Could not clear history.");
+    }
+    setClearing(false);
+  };
+
   return (
     <div className="bg-gray-50 border rounded-xl p-5 shadow">
-      <h3 className="font-bold text-lg mb-2">Module Assistant</h3>
-      <div>Note: Bot does not have access to course materials.</div>
+      <div className="flex justify-between items-center mb-2">
+        <h3 className="font-bold text-lg">Module Assistant</h3>
+        <button
+          onClick={clearHistory}
+          disabled={clearing}
+          className="text-sm text-red-600 hover:underline disabled:opacity-50"
+        >
+          {clearing ? "Clearing..." : "Clear History"}
+        </button>
+      </div>
+      <div className="text-xs text-gray-500 mb-2">
+        Note: Bot does not have access to course materials.
+      </div>
       <div className="min-h-[120px] max-h-60 overflow-y-auto flex flex-col gap-3 mb-4">
         {chat.length === 0 && (
           <div className="text-gray-400 text-sm">
@@ -115,6 +145,9 @@ export default function ModuleChatbot({
           <div className="text-gray-400 text-xs">Assistant is typing…</div>
         )}
       </div>
+      {clearError && (
+        <div className="text-red-500 text-xs mb-2">{clearError}</div>
+      )}
       {error && <div className="text-red-500 text-xs mb-2">{error}</div>}
       <form onSubmit={sendQuestion} className="flex gap-2">
         <input

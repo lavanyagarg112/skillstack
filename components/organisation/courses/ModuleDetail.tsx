@@ -34,9 +34,15 @@ interface Props {
   courseId: string;
   moduleId: string;
   isAdmin: boolean;
+  isAiEnabled: boolean;
 }
 
-export default function ModuleDetail({ courseId, moduleId, isAdmin }: Props) {
+export default function ModuleDetail({
+  courseId,
+  moduleId,
+  isAdmin,
+  isAiEnabled,
+}: Props) {
   const [data, setData] = React.useState<ModuleDetailData | null>(null);
   const [enrolled, setEnrolled] = React.useState<boolean>(false);
   const [answers, setAnswers] = useState<Record<number, number | number[]>>({});
@@ -247,11 +253,13 @@ export default function ModuleDetail({ courseId, moduleId, isAdmin }: Props) {
           )}
         </div>
         <div className="mt-8">
-          <ModuleChatBot
-            courseId={courseId}
-            moduleId={moduleId}
-            isEnrolled={enrolled}
-          />
+          {isAiEnabled && (
+            <ModuleChatBot
+              courseId={courseId}
+              moduleId={moduleId}
+              isEnrolled={enrolled}
+            />
+          )}
         </div>
       </div>
     );
@@ -329,9 +337,9 @@ export default function ModuleDetail({ courseId, moduleId, isAdmin }: Props) {
     return (
       <div className="space-y-6">
         <h2 className="text-3xl font-bold">{data.title} — Results</h2>
-        {results.map((r) => (
+        {results.map((r, index) => (
           <div key={r.questionId} className="p-4 border rounded space-y-2">
-            <p className="font-medium">Question {r.questionId}</p>
+            <p className="font-medium">Question {index + 1}</p>
             <p>
               Your answers:&nbsp;
               {r.selectedOptions.map((o) => o.text).join(", ")}
@@ -370,14 +378,16 @@ export default function ModuleDetail({ courseId, moduleId, isAdmin }: Props) {
           answers will be lost
         </p>
       )}
-      {quiz?.questions.map((q) => (
+      {quiz?.questions.map((q, index) => (
         <div key={q.id} className="space-y-2">
-          <p className="font-medium">{q.question_text}</p>
+          <p className="font-medium">
+            {index + 1}. {q.question_text}
+          </p>
           {q.options.map((opt) => (
             <label key={opt.id} className="flex items-center space-x-2">
               <input
                 type={q.question_type === "true_false" ? "radio" : "checkbox"}
-                name={`q-${q.id}`}
+                name={`q-${index + 1}`}
                 value={opt.id}
                 checked={
                   q.question_type === "true_false"

@@ -72,11 +72,18 @@ export default function OrgSettings() {
         }),
       });
       if (!res.ok) throw new Error("Failed to save settings");
-      setName(name);
-      setDescription(description);
-      setAiEnabled(aiEnabled);
+      // setName(name);
+      // setDescription(description);
+      // setAiEnabled(aiEnabled);
       setError(null);
       setMessage("Settings saved successfully");
+      setInitialData({
+        id: organisationId,
+        organisation_name: name,
+        description,
+        ai_enabled: aiEnabled,
+      });
+      window.location.reload();
     } catch (err: any) {
       setError(err.message || "Failed to save settings");
       setMessage(null);
