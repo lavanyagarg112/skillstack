@@ -33,7 +33,7 @@ interface QuizResult {
 }
 
 interface TagPerf {
-  tag_name: string;
+  skill_name: string;
   correct: number;
   total: number;
   pct: number;
@@ -156,8 +156,8 @@ export default function BasicReport() {
         {data.strengths.length ? (
           <ul className="list-disc list-inside">
             {data.strengths.map((t) => (
-              <li key={t.tag_name}>
-                {t.tag_name}: {t.correct}/{t.total} ({t.pct}%)
+              <li key={t.skill_name}>
+                {t.skill_name}: {t.correct}/{t.total} ({t.pct}%)
               </li>
             ))}
           </ul>
@@ -171,8 +171,8 @@ export default function BasicReport() {
         {data.weaknesses.length ? (
           <ul className="list-disc list-inside">
             {data.weaknesses.map((t) => (
-              <li key={t.tag_name}>
-                {t.tag_name}: {t.correct}/{t.total} ({t.pct}%)
+              <li key={t.skill_name}>
+                {t.skill_name}: {t.correct}/{t.total} ({t.pct}%)
               </li>
             ))}
           </ul>
