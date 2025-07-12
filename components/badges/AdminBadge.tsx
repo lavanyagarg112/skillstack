@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState, useEffect } from "react";
 
 interface FrequentBadge {
@@ -127,10 +128,33 @@ export default function AdminBadgesPage() {
     }
   };
 
+  const deleteFrequentBadge = async (id: number) => {
+    if (!confirm("Delete this badge?")) return;
+    const res = await fetch("/api/badges/frequent-badge", {
+      method: "DELETE",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ badgeId: id }),
+    });
+    if (res.ok) fetchBadges();
+    else alert("Failed to delete");
+  };
+
+  const deleteCourseBadge = async (id: number) => {
+    if (!confirm("Delete this badge?")) return;
+    const res = await fetch("/api/badges/course-specific-badge", {
+      method: "DELETE",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ badgeId: id }),
+    });
+    if (res.ok) fetchBadges();
+    else alert("Failed to delete");
+  };
+
   return (
     <div className="p-6 space-y-8">
       <h1 className="text-3xl font-bold text-purple-600">Manage Badges</h1>
-
       {error && (
         <div className="text-red-600 bg-red-100 p-3 rounded">{error}</div>
       )}
@@ -145,13 +169,13 @@ export default function AdminBadgesPage() {
             placeholder="Badge Name"
             value={freqName}
             onChange={(e) => setFreqName(e.target.value)}
-            className="w-full p-2 border rounded mb-2 focus:outline-none focus:ring"
+            className="w-full p-2 border rounded mb-2"
           />
           <textarea
             placeholder="Description (optional)"
             value={freqDesc}
             onChange={(e) => setFreqDesc(e.target.value)}
-            className="w-full p-2 border rounded mb-2 focus:outline-none focus:ring"
+            className="w-full p-2 border rounded mb-2"
             rows={2}
           />
           <input
@@ -162,11 +186,11 @@ export default function AdminBadgesPage() {
             onChange={(e) =>
               setFreqCount(e.target.value === "" ? "" : +e.target.value)
             }
-            className="w-full p-2 border rounded mb-4 focus:outline-none focus:ring"
+            className="w-full p-2 border rounded mb-4"
           />
           <button
             onClick={addFrequentBadge}
-            className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded"
+            className="px-4 py-2 bg-green-600 text-white rounded"
           >
             Create Badge
           </button>
@@ -181,19 +205,19 @@ export default function AdminBadgesPage() {
             placeholder="Badge Name"
             value={specName}
             onChange={(e) => setSpecName(e.target.value)}
-            className="w-full p-2 border rounded mb-2 focus:outline-none focus:ring"
+            className="w-full p-2 border rounded mb-2"
           />
           <textarea
             placeholder="Description (optional)"
             value={specDesc}
             onChange={(e) => setSpecDesc(e.target.value)}
-            className="w-full p-2 border rounded mb-2 focus:outline-none focus:ring"
+            className="w-full p-2 border rounded mb-2"
             rows={2}
           />
           <select
             value={specCourseId}
             onChange={(e) => setSpecCourseId(Number(e.target.value) || "")}
-            className="w-full p-2 border rounded mb-4 focus:outline-none focus:ring"
+            className="w-full p-2 border rounded mb-4"
           >
             <option value="">Select a course…</option>
             {courses.map((c) => (
@@ -204,7 +228,7 @@ export default function AdminBadgesPage() {
           </select>
           <button
             onClick={addCourseBadge}
-            className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded"
+            className="px-4 py-2 bg-green-600 text-white rounded"
           >
             Create Badge
           </button>
@@ -226,7 +250,15 @@ export default function AdminBadgesPage() {
                 key={b.id}
                 className="p-3 border rounded-lg bg-purple-50 flex flex-col"
               >
-                <span className="font-semibold">{b.name}</span>
+                <div className="flex justify-between items-start">
+                  <span className="font-semibold">{b.name}</span>
+                  <button
+                    onClick={() => deleteFrequentBadge(b.id)}
+                    className="text-red-600"
+                  >
+                    ×
+                  </button>
+                </div>
                 <small className="italic text-sm">
                   when you complete {b.numCoursesCompleted} courses
                 </small>
@@ -252,9 +284,23 @@ export default function AdminBadgesPage() {
                 key={b.id}
                 className="p-3 border rounded-lg bg-purple-50 flex flex-col"
               >
-                <span className="font-semibold">{b.name}</span>
+                <div className="flex justify-between items-start">
+                  <span className="font-semibold">{b.name}</span>
+                  <button
+                    onClick={() => deleteCourseBadge(b.id)}
+                    className="text-red-600"
+                  >
+                    ×
+                  </button>
+                </div>
                 <small className="italic text-sm">
-                  for course #{b.courseId}
+                  on completion of course #
+                  <Link
+                    href={`/courses/${b.courseId}`}
+                    className="text-blue-600 underline hover:text-blue-800"
+                  >
+                    {b.name}
+                  </Link>
                 </small>
                 {b.description && (
                   <p className="text-gray-700 mt-1 line-clamp-2">
