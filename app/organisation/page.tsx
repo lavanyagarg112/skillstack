@@ -7,11 +7,12 @@ import ManageChannels from "@/components/organisation/settings/ManageChannels";
 import ManageLevels from "@/components/organisation/settings/ManageLevels";
 import OnboardingConfig from "@/components/organisation/settings/OnboardingConfig";
 import OrgSettings from "@/components/organisation/settings/OrgSettings";
+import AdminBadgesPage from "@/components/badges/AdminBadge";
 
 export default function OrganisationsPage() {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<
-    "skills" | "channels" | "levels" | "onboarding" | "orgSettings"
+    "skills" | "channels" | "levels" | "onboarding" | "orgSettings" | "badges"
   >("skills");
 
   if (!user || !user.hasCompletedOnboarding) {
@@ -80,6 +81,16 @@ export default function OrganisationsPage() {
               Onboarding Form
             </button>
             <button
+              onClick={() => setActiveTab("badges")}
+              className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                activeTab === "badges"
+                  ? "border-purple-500 text-purple-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              }`}
+            >
+              Manage Badges
+            </button>
+            <button
               onClick={() => setActiveTab("orgSettings")}
               className={`py-2 px-1 border-b-2 font-medium text-sm ${
                 activeTab === "orgSettings"
@@ -99,6 +110,7 @@ export default function OrganisationsPage() {
       {activeTab === "levels" && <ManageLevels />}
       {activeTab === "onboarding" && <OnboardingConfig />}
       {activeTab === "orgSettings" && <OrgSettings />}
+      {activeTab === "badges" && <AdminBadgesPage />}
     </div>
   );
 }
