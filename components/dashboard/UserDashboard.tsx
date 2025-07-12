@@ -13,6 +13,7 @@ interface Module {
 }
 interface DashboardData {
   welcome: string;
+  organisationName: string;
   currentCourse: Course | null;
   currentModule: Module | null;
   nextToLearn: Module[];
@@ -60,6 +61,7 @@ export default function UserDashboard() {
 
   const {
     welcome,
+    organisationName,
     currentCourse,
     currentModule,
     nextToLearn,
@@ -76,6 +78,9 @@ export default function UserDashboard() {
             <div>
               <div className="text-3xl md:text-4xl font-bold text-purple-700 mb-2 tracking-tight">
                 {welcome}
+              </div>
+              <div className="text-lg text-gray-600 mb-4">
+                {data.organisationName}
               </div>
             </div>
 
@@ -175,7 +180,6 @@ export default function UserDashboard() {
                 <div className="text-xs text-gray-500 mb-1">
                   {currentCourse?.name}
                 </div>
-                {/* Progress bar */}
                 <div className="w-full bg-purple-100 h-2 rounded-full">
                   <div
                     className="bg-purple-600 h-2 rounded-full transition-all duration-500"

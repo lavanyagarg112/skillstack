@@ -11,6 +11,7 @@ import {
   MapIcon,
   ClockIcon,
   CogIcon,
+  StarIcon,
 } from "@heroicons/react/24/outline";
 import LogoutButton from "./auth/logout/LogoutButton";
 import { useAuth } from "@/context/AuthContext";
@@ -23,6 +24,7 @@ const menuSections = [
       { label: "My Roadmap", href: "/roadmap", icon: MapIcon },
       { label: "Courses", href: "/courses", icon: BookOpenIcon },
       { label: "Reports", href: "/reports", icon: ChartBarIcon },
+      { label: "Badges", href: "/badges", icon: StarIcon },
     ],
   },
   {
