@@ -81,6 +81,11 @@ export default function CourseCard({
   };
 
   const markNotCompleted = async () => {
+    const result = confirm(
+      "Are you sure you want to mark this course as not completed? You will lose corresponding badges."
+    );
+
+    if (!result) return;
     try {
       const response = await fetch("/api/courses/uncomplete-course", {
         method: "POST",
@@ -110,6 +115,29 @@ export default function CourseCard({
         body: JSON.stringify({ courseId: course.id }),
       });
       if (!res.ok) throw new Error("Failed to complete course");
+
+      const data = await res.json();
+      const { specificBadges = [], earnedBadges = [] } = data;
+
+      const msgs: string[] = [];
+      if (specificBadges.length) {
+        msgs.push(
+          `Course badge earned: ${specificBadges
+            .map((b: any) => b.name)
+            .join(", ")}`
+        );
+      }
+      if (earnedBadges.length) {
+        msgs.push(
+          `Milestone badge earned: ${earnedBadges
+            .map((b: any) => b.name)
+            .join(", ")}`
+        );
+      }
+      if (msgs.length) {
+        alert(msgs.join("\n"));
+      }
+
       window.location.reload();
     } catch (err) {
       console.error(err);
