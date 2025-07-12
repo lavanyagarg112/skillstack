@@ -39,12 +39,20 @@ interface TagPerf {
   pct: number;
 }
 
+interface UserBadge {
+  id: number;
+  name: string;
+  description: string;
+  awarded_at: string;
+}
+
 interface ProgressData {
   coursesDone: CourseDone[];
   modulesDone: number;
   quizResults: QuizResult[];
   strengths: TagPerf[];
   weaknesses: TagPerf[];
+  userBadges: UserBadge[];
 }
 
 export default function BasicReport() {
@@ -170,6 +178,36 @@ export default function BasicReport() {
           </ul>
         ) : (
           <p>No weaknesses detected yet.</p>
+        )}
+      </section>
+      <section>
+        <h2 className="text-2xl font-semibold mb-4">Badges Earned</h2>
+        {data.userBadges.length ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {data.userBadges.map((b) => (
+              <div
+                key={b.id}
+                className="p-4 border rounded-lg bg-yellow-50 flex flex-col"
+              >
+                <h3 className="font-medium">{b.name}</h3>
+                {b.description && (
+                  <p className="text-gray-700 mt-1 line-clamp-2">
+                    {b.description}
+                  </p>
+                )}
+                <p className="text-sm text-gray-500 mt-auto">
+                  Awarded{" "}
+                  {new Date(b.awarded_at).toLocaleDateString(undefined, {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                  })}
+                </p>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p>No badges earned yet.</p>
         )}
       </section>
     </div>

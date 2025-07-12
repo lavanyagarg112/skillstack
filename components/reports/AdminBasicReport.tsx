@@ -53,6 +53,13 @@ interface TagPerf {
   pct: number;
 }
 
+interface UserBadge {
+  id: number;
+  name: string;
+  description: string;
+  awarded_at: string;
+}
+
 interface EmployeeProgress {
   id: number;
   firstname: string;
@@ -63,6 +70,16 @@ interface EmployeeProgress {
   quizResults: QuizResult[];
   strengths: TagPerf[];
   weaknesses: TagPerf[];
+  badges: UserBadge[];
+}
+
+interface OrganisationBadges {
+  id: number;
+  name: string;
+  description: string;
+  course_id: number | null;
+  milestone: number | null;
+  earned_count: number;
 }
 
 interface OverviewData {
@@ -71,6 +88,7 @@ interface OverviewData {
     total: number;
     list: EmployeeProgress[];
   };
+  badges: OrganisationBadges[];
 }
 
 export default function AdminBasicReport() {
@@ -152,6 +170,33 @@ export default function AdminBasicReport() {
         </table>
       </section>
 
+      <section>
+        <h2 className="text-2xl font-semibold mb-4">All Badges</h2>
+        {data.badges.length ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {data.badges.map((b) => (
+              <div
+                key={b.id}
+                className="p-4 border rounded-lg bg-yellow-50 flex flex-col"
+              >
+                <h3 className="font-medium">{b.name}</h3>
+                {b.description && (
+                  <p className="text-gray-700 mt-1 line-clamp-2">
+                    {b.description}
+                  </p>
+                )}
+                <p className="text-sm text-gray-500 mt-auto">
+                  Earned by {b.earned_count}{" "}
+                  {b.earned_count === 1 ? "employee" : "employees"}
+                </p>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p>No badges defined yet.</p>
+        )}
+      </section>
+
       <section className="space-y-6">
         <h2 className="text-2xl font-semibold">
           Employees Progress ({data.employees.total})
@@ -200,12 +245,10 @@ export default function AdminBasicReport() {
                   <p className="ml-4">None yet</p>
                 )}
               </div>
-
               <div>
                 <h3 className="font-semibold">Modules Completed</h3>
                 <p className="ml-4">{emp.modulesDone}</p>
               </div>
-
               <div>
                 <h3 className="font-semibold">Quiz Results</h3>
                 {emp.quizResults.length ? (
@@ -235,7 +278,6 @@ export default function AdminBasicReport() {
                   <p className="ml-4">No quizzes taken</p>
                 )}
               </div>
-
               <div>
                 <h3 className="font-semibold">Strengths</h3>
                 {emp.strengths.length ? (
@@ -250,7 +292,6 @@ export default function AdminBasicReport() {
                   <p className="ml-4">None identified</p>
                 )}
               </div>
-
               <div>
                 <h3 className="font-semibold">Areas to Improve</h3>
                 {emp.weaknesses.length ? (
@@ -263,6 +304,33 @@ export default function AdminBasicReport() {
                   </ul>
                 ) : (
                   <p className="ml-4">None identified</p>
+                )}
+              </div>{" "}
+              <div>
+                <h3 className="font-semibold mb-4">Badges Earned</h3>
+                {emp.badges.length ? (
+                  <div className="ml-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {emp.badges.map((b) => (
+                      <div
+                        key={b.id}
+                        className="p-2 border rounded bg-yellow-50"
+                      >
+                        <p className="font-medium">{b.name}</p>
+                        <p className="text-xs text-gray-500">
+                          {new Date(b.awarded_at).toLocaleDateString(
+                            undefined,
+                            {
+                              year: "numeric",
+                              month: "short",
+                              day: "numeric",
+                            }
+                          )}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="ml-4">None yet</p>
                 )}
               </div>
             </div>
