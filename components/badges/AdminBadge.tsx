@@ -21,11 +21,17 @@ interface CreatedBadges {
   courseBadges: CourseBadge[];
 }
 
+interface Course {
+  id: number;
+  name: string;
+}
+
 export default function AdminBadgesPage() {
   const [badges, setBadges] = useState<CreatedBadges>({
     coursesBadges: [],
     courseBadges: [],
   });
+  const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -36,6 +42,11 @@ export default function AdminBadgesPage() {
   const [specName, setSpecName] = useState("");
   const [specDesc, setSpecDesc] = useState("");
   const [specCourseId, setSpecCourseId] = useState<number | "">("");
+
+  useEffect(() => {
+    fetchBadges();
+    fetchCourses();
+  }, []);
 
   const fetchBadges = () => {
     setLoading(true);
@@ -55,13 +66,20 @@ export default function AdminBadgesPage() {
       .finally(() => setLoading(false));
   };
 
-  useEffect(() => {
-    fetchBadges();
-  }, []);
+  const fetchCourses = async () => {
+    try {
+      const res = await fetch("/api/courses", { credentials: "include" });
+      if (!res.ok) throw new Error("Failed to load courses");
+      const data = (await res.json()) as { courses: Course[] };
+      setCourses(data.courses);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const addFrequentBadge = async () => {
     if (!freqName.trim() || freqCount === "" || freqCount < 0) {
-      alert("Name and non-negative courses-count are required");
+      alert("Name and non-negative course count are required");
       return;
     }
     const res = await fetch("/api/badges/create-frequent", {
@@ -85,8 +103,8 @@ export default function AdminBadgesPage() {
   };
 
   const addCourseBadge = async () => {
-    if (!specName.trim() || specCourseId === "" || specCourseId <= 0) {
-      alert("Name and course ID are required");
+    if (!specName.trim() || specCourseId === "") {
+      alert("Name and course selection are required");
       return;
     }
     const res = await fetch("/api/badges/create-specific-course", {
@@ -96,7 +114,7 @@ export default function AdminBadgesPage() {
       body: JSON.stringify({
         name: specName.trim(),
         description: specDesc.trim(),
-        courseId: +specCourseId,
+        courseId: specCourseId,
       }),
     });
     if (res.ok) {
@@ -112,9 +130,11 @@ export default function AdminBadgesPage() {
   return (
     <div className="p-6 space-y-8">
       <h1 className="text-3xl font-bold text-purple-600">Manage Badges</h1>
+
       {error && (
         <div className="text-red-600 bg-red-100 p-3 rounded">{error}</div>
       )}
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="p-4 border rounded-lg bg-white shadow-sm">
           <h2 className="text-xl font-semibold mb-2">
@@ -170,16 +190,18 @@ export default function AdminBadgesPage() {
             className="w-full p-2 border rounded mb-2 focus:outline-none focus:ring"
             rows={2}
           />
-          <input
-            type="number"
-            min={1}
-            placeholder="Course ID"
+          <select
             value={specCourseId}
-            onChange={(e) =>
-              setSpecCourseId(e.target.value === "" ? "" : +e.target.value)
-            }
+            onChange={(e) => setSpecCourseId(Number(e.target.value) || "")}
             className="w-full p-2 border rounded mb-4 focus:outline-none focus:ring"
-          />
+          >
+            <option value="">Select a course…</option>
+            {courses.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
+          </select>
           <button
             onClick={addCourseBadge}
             className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded"
