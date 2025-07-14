@@ -13,8 +13,7 @@ export default async function Home() {
       <div className="flex-1 flex flex-col items-center justify-center p-8">
         <h1 className="text-5xl font-bold text-purple-900 mb-4">SKILLSTACK</h1>
         <p className="text-xl text-gray-700 mb-6 text-center max-w-xl">
-          A corporate learning platform to organize courses for your team,
-          complete with AI chatbot support.
+          From sign-up to skill-up in minutes.
         </p>
         <div className="flex space-x-4 mb-10">
           <Link
