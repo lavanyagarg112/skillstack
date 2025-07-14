@@ -52,6 +52,7 @@ export default function ModuleDetail({
   const [results, setResults] = useState<
     | {
         questionId: number;
+        questionText: string;
         correctOptions: { id: number; text: string }[];
         selectedOptions: { id: number; text: string }[];
         isCorrect: boolean;
@@ -340,6 +341,7 @@ export default function ModuleDetail({
         {results.map((r, index) => (
           <div key={r.questionId} className="p-4 border rounded space-y-2">
             <p className="font-medium">Question {index + 1}</p>
+            <p>{r.questionText}</p>
             <p>
               Your answers:&nbsp;
               {r.selectedOptions.map((o) => o.text).join(", ")}
