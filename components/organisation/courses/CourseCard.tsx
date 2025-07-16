@@ -153,7 +153,11 @@ export default function CourseCard({
   return (
     <div className="bg-white border rounded-lg p-6 shadow-sm hover:shadow-md transition">
       <h2 className="text-xl font-semibold text-purple-600">{course.name}</h2>
-      <p className="mt-2 text-gray-700">{course.description?.slice(0, 100)}</p>
+      <p className="mt-2 text-gray-700">
+        {course.description && course.description?.length < 100
+          ? course.description
+          : `${course.description?.slice(0, 100)}...`}
+      </p>
 
       {(course.channel || course.level) && (
         <div className="mt-3 flex flex-wrap gap-2">
