@@ -15,7 +15,13 @@ export default function AuthClientProvider({
 
   useEffect(() => {
     if (loading) return;
-    if (pathname === "/" || pathname === "/auth") return;
+    if (
+      pathname === "/" ||
+      pathname === "/auth" ||
+      pathname === "/terms" ||
+      pathname === "/privacy"
+    )
+      return;
     if (!user.isLoggedIn) {
       router.replace("/auth");
       return;
