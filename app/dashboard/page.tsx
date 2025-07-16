@@ -1,17 +1,26 @@
-export default function Dashboard() {
+import { getAuthUser } from "@/lib/auth";
+import UserDashboard from "@/components/dashboard/UserDashboard";
+import AdminDashboard from "@/components/dashboard/AdminDashboard";
+
+export default async function DashboardPage() {
+  const user = await getAuthUser();
+  if (!user || !user.hasCompletedOnboarding) {
+    return null;
+  }
+
+  const isAdmin = user?.organisation?.role === "admin";
+  if (isAdmin) {
+    return (
+      <div className="p-8">
+        <h1 className="text-3xl font-bold mb-4 text-purple-600">Dashboard</h1>
+        <AdminDashboard />
+      </div>
+    );
+  }
   return (
-    <div>
-      <h1 className="text-2xl font-bold text-center mb-6">Dashboard</h1>
-      <div className="flex justify-center">
-        <div className="bg-gray-200 p-4 rounded-lg shadow-md w-full max-w-md">
-          <p className="text-gray-700">Welcome to your dashboard!</p>
-        </div>
-      </div>
-      <div className="flex justify-center mt-4">
-        <div className="bg-gray-200 p-4 rounded-lg shadow-md w-full max-w-md">
-          <p className="text-gray-700">Here you can manage your account.</p>
-        </div>
-      </div>
+    <div className="p-8">
+      <h1 className="text-3xl font-bold mb-4 text-purple-600">Dashboard</h1>
+      <UserDashboard />
     </div>
   );
 }
