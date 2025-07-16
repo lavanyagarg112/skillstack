@@ -19,7 +19,9 @@ export default function AuthClientProvider({
       pathname === "/" ||
       pathname === "/auth" ||
       pathname === "/terms" ||
-      pathname === "/privacy"
+      pathname === "/privacy" ||
+      pathname === "/forgot-password" ||
+      pathname === "/contact"
     )
       return;
     if (!user.isLoggedIn) {
